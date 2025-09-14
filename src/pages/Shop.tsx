@@ -1,0 +1,32 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import ProductCard from '../components/ProductCard';
+
+export default function Shop() {
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios.get('http://localhost:5025/api/products')
+      .then(res => {
+        setProducts(res.data);
+        setLoading(false);
+      })
+      .catch(err => console.error(err));
+  }, []);
+
+  if (loading) return <div className="container text-center py-5">Loading...</div>;
+
+  return (
+    <div className="container py-5">
+      <h1 className="mb-4">Shop UrbanEra</h1>
+      <div className="row g-4">
+        {products.map(product => (
+          <div key={product.id} className="col-md-4">
+            <ProductCard product={product} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

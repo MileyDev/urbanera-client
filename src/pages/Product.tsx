@@ -27,7 +27,7 @@ export default function Product() {
 
     console.log('Fetching product with ID:', id); // Debug
     axios
-      .get(`http://localhost:5025/api/products/${id}`)
+      .get(`https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products/${id}`)
       .then((res) => {
         console.log('Product response:', res.data); // Debug
         setProduct(res.data);

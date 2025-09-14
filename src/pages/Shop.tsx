@@ -7,7 +7,7 @@ export default function Shop() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('hhttps://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products')
+    axios.get('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products')
       .then(res => {
         setProducts(res.data);
         setLoading(false);

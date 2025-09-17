@@ -1,23 +1,27 @@
 import { useContext, useState } from 'react';
 import axios from 'axios';
 import { CartContext } from '../context/CartContext';
-import PaystackPop from '@paystack/inline-js';
 
 export default function Cart() {
   const { cart, removeFromCart } = useContext(CartContext);
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  console.log('Cart component rendered, cart:', cart); // Debug render
+
   const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 0), 0);
 
   const handleCheckout = async () => {
+    console.log('Proceed to Checkout clicked, email:', email, 'cart:', cart); // Debug
     if (!email) {
       setError('Please enter your email.');
+      console.log('Error: Email is empty'); // Debug
       return;
     }
-    console.log('Button clicked')
 
+    setError(null);
     try {
+      console.log('Sending POST to backend:', { email, items: cart }); // Debug
       const response = await axios.post('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/checkout/create-checkout-session', {
         email,
         items: cart.map(item => ({
@@ -30,11 +34,17 @@ export default function Cart() {
         })),
       });
 
+      console.log('Backend response:', response.data); // Debug
       const { checkoutUrl } = response.data;
-      const paystack = new PaystackPop();
-      paystack.redirect(checkoutUrl);
-    } catch (err) {
-      console.error('Checkout error:', err);
+      if (checkoutUrl) {
+        console.log('Redirecting to Paystack:', checkoutUrl); // Debug
+        window.location.href = checkoutUrl; // Direct redirect
+      } else {
+        setError('No checkout URL received. Please try again.');
+        console.log('Error: No checkoutUrl in response'); // Debug
+      }
+    } catch (err: any) {
+      console.error('Checkout error:', err.response?.data || err.message); // Debug
       setError('Failed to initiate checkout. Please try again.');
     }
   };
@@ -42,7 +52,7 @@ export default function Cart() {
   return (
     <div className="container-fluid full-screen-section">
       <h1 className="mb-4">Your Cart</h1>
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && <div className="alert alert-danger mb-3">{error}</div>}
       {cart.length === 0 ? (
         <p className="text-muted">Your cart is empty.</p>
       ) : (
@@ -84,6 +94,7 @@ export default function Cart() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
+                required
               />
             </div>
             <button className="btn btn-dark btn-lg" onClick={handleCheckout}>

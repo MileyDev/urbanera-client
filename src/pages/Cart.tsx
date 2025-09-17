@@ -15,6 +15,7 @@ export default function Cart() {
       setError('Please enter your email.');
       return;
     }
+    console.log('Button clicked')
 
     try {
       const response = await axios.post('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/checkout/create-checkout-session', {

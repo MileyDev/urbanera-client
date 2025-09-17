@@ -27,7 +27,7 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="card-body d-flex flex-column">
         <h5 className="card-title">{product.name}</h5>
         <p className="card-text text-muted flex-grow-1">{product.description}</p>
-        <p className="card-text fw-bold">${product.price}</p>
+        <p className="card-text fw-bold">₦{product.price}</p>
         <div className="mt-auto d-flex gap-2">
           <button
             className="btn btn-dark"

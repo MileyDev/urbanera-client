@@ -7,21 +7,17 @@ export default function Cart() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  console.log('Cart component rendered, cart:', cart); // Debug render
 
   const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 0), 0);
 
   const handleCheckout = async () => {
-    console.log('Proceed to Checkout clicked, email:', email, 'cart:', cart); // Debug
     if (!email) {
       setError('Please enter your email.');
-      console.log('Error: Email is empty'); // Debug
       return;
     }
 
     setError(null);
     try {
-      console.log('Sending POST to backend:', { email, items: cart }); // Debug
       const response = await axios.post('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/checkout/create-checkout-session', {
         email,
         items: cart.map(item => ({
@@ -34,17 +30,13 @@ export default function Cart() {
         })),
       });
 
-      console.log('Backend response:', response.data); // Debug
       const { checkoutUrl } = response.data;
       if (checkoutUrl) {
-        console.log('Redirecting to Paystack:', checkoutUrl); // Debug
         window.location.href = checkoutUrl; // Direct redirect
       } else {
         setError('No checkout URL received. Please try again.');
-        console.log('Error: No checkoutUrl in response'); // Debug
       }
     } catch (err: any) {
-      console.error('Checkout error:', err.response?.data || err.message); // Debug
       setError('Failed to initiate checkout. Please try again.');
     }
   };
@@ -71,7 +63,7 @@ export default function Cart() {
                   <div className="card-body d-flex flex-column">
                     <h5 className="card-title">{item.name}</h5>
                     <p className="card-text text-muted">{item.description}</p>
-                    <p className="card-text fw-bold">${item.price.toFixed(2)} x {(item.quantity || 0)}</p>
+                    <p className="card-text fw-bold">₦{item.price.toFixed(2)} x {(item.quantity || 0)}</p>
                     <button
                       className="btn btn-outline-danger mt-auto"
                       onClick={() => removeFromCart(item.id)}
@@ -84,7 +76,7 @@ export default function Cart() {
             ))}
           </div>
           <div className="mt-4">
-            <h3>Total: ${total.toFixed(2)}</h3>
+            <h3>Total: ₦{total.toFixed(2)}</h3>
             <div className="mb-3">
               <label htmlFor="email" className="form-label">Email</label>
               <input

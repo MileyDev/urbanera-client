@@ -52,7 +52,7 @@ export default function Product() {
         <div className="col-md-6 d-flex flex-column justify-content-center">
           <h1 className="mb-3">{product.name}</h1>
           <p className="text-muted mb-3">{product.description}</p>
-          <p className="fs-4 fw-bold mb-4">${product.price}</p>
+          <p className="fs-4 fw-bold mb-4">₦{product.price}</p>
           <button
             className="btn btn-dark btn-lg"
             onClick={() => addToCart({ ...product, quantity: 1 })}

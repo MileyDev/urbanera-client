@@ -1,14 +1,7 @@
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  imageUrl: string;
-  description: string;
-}
+import { type Product } from '../types/Product';
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useContext(CartContext);
@@ -44,7 +37,7 @@ export default function ProductCard({ product }: { product: Product }) {
           </button>
           <button
             className="btn btn-outline-dark"
-            onClick={() => addToCart(product)}
+            onClick={() => addToCart({ ...product, quantity: 1 })}
           >
             Add to Cart
           </button>

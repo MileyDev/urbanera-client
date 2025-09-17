@@ -1,61 +1,92 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
+import axios from 'axios';
 import { CartContext } from '../context/CartContext';
+import PaystackPop from '@paystack/inline-js';
 
 export default function Cart() {
-  const { cart, removeFromCart, clearCart } = useContext(CartContext);
+  const { cart, removeFromCart } = useContext(CartContext);
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
-  const total = cart.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0
-  );
+  const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 0), 0);
+
+  const handleCheckout = async () => {
+    if (!email) {
+      setError('Please enter your email.');
+      return;
+    }
+
+    try {
+      const response = await axios.post('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/checkout/create-checkout-session', {
+        email,
+        items: cart.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          description: item.description,
+          imageUrl: item.imageUrl,
+          quantity: item.quantity || 1,
+        })),
+      });
+
+      const { checkoutUrl } = response.data;
+      const paystack = new PaystackPop();
+      paystack.redirect(checkoutUrl);
+    } catch (err) {
+      console.error('Checkout error:', err);
+      setError('Failed to initiate checkout. Please try again.');
+    }
+  };
 
   return (
-    <div className="container py-5">
+    <div className="container-fluid full-screen-section">
       <h1 className="mb-4">Your Cart</h1>
+      {error && <div className="alert alert-danger">{error}</div>}
       {cart.length === 0 ? (
         <p className="text-muted">Your cart is empty.</p>
       ) : (
         <>
           <div className="row g-4">
-            {cart.map((item) => (
-              <div key={item.product.id} className="col-12">
-                <div className="card mb-3">
-                  <div className="row g-0">
-                    <div className="col-md-2">
-                      <img
-                        src={item.product.imageUrl}
-                        alt={item.product.name}
-                        className="img-fluid rounded-start"
-                        style={{ maxHeight: '100px', objectFit: 'cover' }}
-                      />
-                    </div>
-                    <div className="col-md-8">
-                      <div className="card-body">
-                        <h5 className="card-title">{item.product.name}</h5>
-                        <p className="card-text">
-                          ${item.product.price} x {item.quantity} = $
-                          {(item.product.price * item.quantity).toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="col-md-2 d-flex align-items-center">
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => removeFromCart(item.product.id)}
-                      >
-                        Remove
-                      </button>
-                    </div>
+            {cart.map(item => (
+              <div key={item.id} className="col-md-4">
+                <div className="card h-100 shadow-sm">
+                  <img
+                    src={item.imageUrl}
+                    className="card-img-top"
+                    alt={item.name}
+                    style={{ height: '250px', objectFit: 'cover', width: '100%' }}
+                    onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/250')}
+                  />
+                  <div className="card-body d-flex flex-column">
+                    <h5 className="card-title">{item.name}</h5>
+                    <p className="card-text text-muted">{item.description}</p>
+                    <p className="card-text fw-bold">${item.price.toFixed(2)} x {(item.quantity || 0)}</p>
+                    <button
+                      className="btn btn-outline-danger mt-auto"
+                      onClick={() => removeFromCart(item.id)}
+                    >
+                      Remove
+                    </button>
                   </div>
                 </div>
               </div>
             ))}
           </div>
           <div className="mt-4">
-            <h4>Total: ${total.toFixed(2)}</h4>
-            <button className="btn btn-dark me-2">Proceed to Checkout</button>
-            <button className="btn btn-outline-danger" onClick={clearCart}>
-              Clear Cart
+            <h3>Total: ${total.toFixed(2)}</h3>
+            <div className="mb-3">
+              <label htmlFor="email" className="form-label">Email</label>
+              <input
+                type="email"
+                className="form-control"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+              />
+            </div>
+            <button className="btn btn-dark btn-lg" onClick={handleCheckout}>
+              Proceed to Checkout
             </button>
           </div>
         </>

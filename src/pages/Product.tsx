@@ -2,14 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { CartContext } from '../context/CartContext';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  imageUrl: string;
-  description: string;
-}
+import { type Product } from '../types/Product';
 
 export default function Product() {
   const { id } = useParams<{ id: string }>();
@@ -62,7 +55,7 @@ export default function Product() {
           <p className="fs-4 fw-bold mb-4">${product.price}</p>
           <button
             className="btn btn-dark btn-lg"
-            onClick={() => addToCart(product)}
+            onClick={() => addToCart({ ...product, quantity: 1 })}
           >
             Add to Cart
           </button>

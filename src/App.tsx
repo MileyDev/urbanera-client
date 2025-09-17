@@ -1,5 +1,5 @@
 import Home from './pages/Home'
-import { CartProvider } from './context/CartContext'
+import CartProvider from './context/CartContext'
 import Shop from './pages/Shop'
 import NavBar from './components/NavBar'
 import Product from './pages/Product'

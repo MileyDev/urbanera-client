@@ -15,7 +15,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const navigate = useNavigate();
 
   const handleViewDetails = () => {
-    console.log('Navigating to product:', product.id); // Debug
+    console.log('Navigating to product:', product.id);
     navigate(`/product/${product.id}`);
   };
 
@@ -25,7 +25,7 @@ export default function ProductCard({ product }: { product: Product }) {
         src={product.imageUrl}
         className="card-img-top"
         alt={product.name}
-        style={{ height: '250px', objectFit: 'cover' }}
+        style={{ height: '250px', objectFit: 'cover', width: '100%' }}
         onError={(e) => {
           e.currentTarget.src = 'https://via.placeholder.com/250';
           console.error(`Failed to load image: ${product.imageUrl}`);

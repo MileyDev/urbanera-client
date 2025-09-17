@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
 :root {
   font-family: 'Quicksand', sans-serif !important;
   line-height: 1.5;
@@ -22,12 +24,45 @@ a:hover {
   color: #535bf2;
 }
 
-body {
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 100%;
+  padding: 0;
+  overflow-x: hidden;
+  font-family: 'Quicksand', 'Arial', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6, p, a, button, .btn, .card-title, .card-text, .alert {
+  font-family: 'Quicksand', 'Arial', sans-serif !important;
+}
+
+.container-fluid {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+}
+
+.row {
+  margin: 0;
+}
+
+.card-img-top, .img-fluid {
+  object-fit: cover;
+  width: 100%;
+  height: 250px; 
+}
+
+.full-screen-section {
+  padding: 2rem 1rem;
   min-height: 100vh;
+  box-sizing: border-box;
+}
+
+
+body {
+  display: flex;
 }
 
 .card:hover {

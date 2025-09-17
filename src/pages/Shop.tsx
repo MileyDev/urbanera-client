@@ -12,13 +12,16 @@ export default function Shop() {
         setProducts(res.data);
         setLoading(false);
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error('Fetch error:', err);
+        setLoading(false);
+      });
   }, []);
 
-  if (loading) return <div className="container text-center py-5">Loading...</div>;
+  if (loading) return <div className="container-fluid full-screen-section text-center">Loading...</div>;
 
   return (
-    <div className="container py-5">
+    <div className="container-fluid full-screen-section">
       <h1 className="mb-4">Shop UrbanEra</h1>
       <div className="row g-4">
         {products.map(product => (

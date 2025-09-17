@@ -25,11 +25,11 @@ export default function Product() {
       return;
     }
 
-    console.log('Fetching product with ID:', id); // Debug
+    console.log('Fetching product with ID:', id);
     axios
       .get(`https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products/${id}`)
       .then((res) => {
-        console.log('Product response:', res.data); // Debug
+        console.log('Product response:', res.data);
         setProduct(res.data);
         setLoading(false);
       })
@@ -40,23 +40,23 @@ export default function Product() {
       });
   }, [id]);
 
-  if (loading) return <div className="container text-center py-5">Loading...</div>;
-  if (error) return <div className="container text-center py-5 text-danger">{error}</div>;
-  if (!product) return <div className="container text-center py-5">Product not found</div>;
+  if (loading) return <div className="container-fluid full-screen-section text-center">Loading...</div>;
+  if (error) return <div className="container-fluid full-screen-section text-center text-danger">{error}</div>;
+  if (!product) return <div className="container-fluid full-screen-section text-center">Product not found</div>;
 
   return (
-    <div className="container py-5">
+    <div className="container-fluid full-screen-section">
       <div className="row">
         <div className="col-md-6">
           <img
             src={product.imageUrl}
             alt={product.name}
             className="img-fluid rounded"
-            style={{ maxHeight: '400px', objectFit: 'cover' }}
+            style={{ maxHeight: '400px', objectFit: 'cover', width: '100%' }}
             onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/400')}
           />
         </div>
-        <div className="col-md-6">
+        <div className="col-md-6 d-flex flex-column justify-content-center">
           <h1 className="mb-3">{product.name}</h1>
           <p className="text-muted mb-3">{product.description}</p>
           <p className="fs-4 fw-bold mb-4">${product.price}</p>

@@ -13,7 +13,7 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <div className="card h-100 shadow-sm">
+    <div className="card h-100 shadow-sm" style={{ background: 'var(--black)' }}>
       <img
         src={product.imageUrl}
         className="card-img-top"

@@ -96,6 +96,11 @@ body {
   padding: 0;
 }
 
+.hero {
+  background: var(--gradient);
+  color: var(--black);
+}
+
 .card:hover {
   transform: scale(1.02);
   transition: transform 0.2s;
@@ -103,7 +108,8 @@ body {
 
 .btn-dark {
   background-color: var(--gradient);
-  border-color: none;
+  border-color: var(--dark-gold);
+  border-radius: 1px;
   color: var(--white);
   font-weight: 600;
   transition: background 0.3s ease, transform 0.2s ease;

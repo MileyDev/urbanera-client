@@ -13,7 +13,7 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <div className="card h-100 shadow-sm" style={{ background: 'var(--black)' }}>
+    <div className="card h-100 shadow-sm" style={{ background: '#1a1a1a' }}>
       <img
         src={product.imageUrl}
         className="card-img-top"
@@ -24,13 +24,14 @@ export default function ProductCard({ product }: { product: Product }) {
           console.error(`Failed to load image: ${product.imageUrl}`);
         }}
       />
-      <div className="card-body d-flex flex-column">
+      <div className="card-body d-flex flex-column" style={{ color: 'var(--white)' }}>
         <h5 className="card-title">{product.name}</h5>
         <p className="card-text text-muted flex-grow-1">{product.description}</p>
         <p className="card-text fw-bold">₦{product.price.toLocaleString()}</p>
         <div className="mt-auto d-flex gap-2">
           <button
             className="btn btn-dark"
+            style={{ borderColor: 'var(--dark-gold)'}}
             onClick={handleViewDetails}
           >
             View Details

@@ -63,7 +63,7 @@ export default function Cart() {
                   <div className="card-body d-flex flex-column">
                     <h5 className="card-title">{item.name}</h5>
                     <p className="card-text text-muted">{item.description}</p>
-                    <p className="card-text fw-bold">₦{item.price.toFixed(2)} x {(item.quantity || 0)}</p>
+                    <p className="card-text fw-bold">₦{item.price.toLocaleString()} x {(item.quantity || 0)}</p>
                     <button
                       className="btn btn-outline-danger mt-auto"
                       onClick={() => removeFromCart(item.id)}
@@ -76,7 +76,7 @@ export default function Cart() {
             ))}
           </div>
           <div className="mt-4">
-            <h3>Total: ₦{total.toFixed(2)}</h3>
+            <h3>Total: ₦{total.toLocaleString()}</h3>
             <div className="mb-3">
               <label htmlFor="email" className="form-label">Email</label>
               <input

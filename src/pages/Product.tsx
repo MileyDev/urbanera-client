@@ -45,14 +45,14 @@ export default function Product() {
             src={product.imageUrl}
             alt={product.name}
             className="img-fluid rounded"
-            style={{ maxHeight: '400px', objectFit: 'cover', width: '100%' }}
+            style={{ maxHeight: '400px', objectFit: 'cover', width: '100%', border: '2px solid var(--dark-gold)' }}
             onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/400')}
           />
         </div>
         <div className="col-md-6 d-flex flex-column justify-content-center">
           <h1 className="mb-3">{product.name}</h1>
           <p className="text-muted mb-3">{product.description}</p>
-          <p className="fs-4 fw-bold mb-4">₦{product.price}</p>
+          <p className="fs-4 fw-bold mb-4">₦{product.price.toLocaleString()}</p>
           <button
             className="btn btn-dark btn-lg"
             onClick={() => addToCart({ ...product, quantity: 1 })}

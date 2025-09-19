@@ -1,6 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
 
 :root {
+  --dark-gold: #B8860B;
+  --black: #1c2526;
+  --white: #ffffff;
+  --gradient: linear-gradient(135deg, #b8860b 0%, #1c2526 100%);
+
+
   font-family: 'Quicksand', sans-serif !important;
   line-height: 1.5;
   font-weight: 400;
@@ -13,6 +19,27 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.full-screen-section {
+  min-height: 100vh;
+  padding: 2rem 0;
+  background: var(--gradient);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card {
+  background: var(--black);
+  border: 1px solid var(--dark-gold);
+  border-radius: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(184, 134, 11, 0.3);
 }
 
 a {
@@ -31,7 +58,7 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  font-family: 'Quicksand', 'Arial', sans-serif;
+  font-family: 'Quicksand', sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6, p, a, button, .btn, .card-title, .card-text, .alert {
@@ -63,6 +90,10 @@ h1, h2, h3, h4, h5, h6, p, a, button, .btn, .card-title, .card-text, .alert {
 
 body {
   display: flex;
+  background: var(--black);
+  color: var(--white);
+  margin: 0;
+  padding: 0;
 }
 
 .card:hover {
@@ -71,13 +102,65 @@ body {
 }
 
 .btn-dark {
-  background-color: #1a1a1a;
-  border-color: #1a1a1a;
+  background-color: var(--gradient);
+  border-color: none;
+  color: var(--white);
+  font-weight: 600;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn-dark:hover {
+  background: linear-gradient(135deg, #1c2526 0%, #b8860b 100%);
+  transform: translateY(-2px);
+}
+
+.btn-outline-danger {
+  border-color: var(--dark-gold);
+  color: var(--dark-gold);
+  transition: background 0.2s ease, color 0.3s ease;
+}
+
+.btn-outline-danger:hover {
+  background: var(--dark-gold);
+  color: var(--black);
 }
 
 h1 {
   font-size: 3em;
   line-height: 1.1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--dark-gold);
+  font-weight: 700;
+}
+
+.text-muted {
+  color: #b0b0b0 !important;
+}
+
+.badge {
+  background: var(--dark-gold) !important;
+  color: var(--black) !important;
+}
+
+.form-control {
+  background: #2e3b3e;
+  border: 1px solid var(--dark-gold);
+  color: var(--white);
+}
+
+.form-control:focus {
+  background: #2e3b3e;
+  border-color: var(--dark-gold);
+  box-shadow: 0 0 5px rgba(184, 134, 11, 0.5);
+  color: var(--white);
+}
+
+.alert-danger {
+  background: #4b1c1c;
+  border: 1px solid #b8860b;
+  color: var(--white);
 }
 
 button {

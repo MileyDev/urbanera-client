@@ -9,6 +9,7 @@ export default function Admin() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   const [newName, setNewName] = useState('');
   const [newPrice, setNewPrice] = useState(0);
@@ -18,6 +19,8 @@ export default function Admin() {
 
   const [updateId, setUpdateId] = useState(0);
   const [updatePrice, setUpdatePrice] = useState(0);
+
+  const [removeId, setRemoveId] = useState(0);
 
   useEffect(() => {
     fetchProducts();
@@ -48,22 +51,52 @@ export default function Admin() {
     formData.append('apiKey', authKey)
 
     try {
-      await axios.post(`${API_BASE_URL}/products`, formData, {
+      const response = await axios.post(`${API_BASE_URL}/products`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
+      console.log(response.data);
       fetchProducts();
       setNewName('');
       setNewPrice(0);
       setNewDescription('');
       setNewImage(null);
       setAuthKey('');
+      setMessage('Product created successfully');
       setError(null);
     } catch (err) {
       setError('Failed to add product.');
     }
   };
+
+  const removeProduct = async () => {
+    if (removeId <= 0) {
+      setError('Valid ID required for product deletion.');
+      return;
+    }
+
+    try {
+      console.log('Updating price for ID:', updateId, 'Price:', updatePrice, 'AuthKey', authKey); // Debug
+      const response = await axios.post(
+        `${API_BASE_URL}/products/${removeId}`,
+        { apiKey: authKey },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      console.log('Product removal response:', response.data); // Debug
+      fetchProducts();
+      setRemoveId(0);
+      setError(null);
+      setMessage('Product has been successfully removed.');
+    } catch (err: any) {
+      console.error('Product removal error:', err.response?.data || err.message); // Debug
+      setError(`Failed to remove product: ${err.response?.data?.error || err.message}`);
+    }
+  }
 
   const updateProductPrice = async () => {
     if (updateId <= 0 || updatePrice <= 0) {
@@ -72,7 +105,7 @@ export default function Admin() {
     }
 
     try {
-      console.log('Updating price for ID:', updateId, 'Price:', updatePrice); // Debug
+      console.log('Updating price for ID:', updateId, 'Price:', updatePrice, 'AuthKey', authKey); // Debug
       const response = await axios.post(
         `${API_BASE_URL}/products/${updateId}/price`,
         { apiKey: authKey, price: updatePrice },
@@ -87,6 +120,7 @@ export default function Admin() {
       setUpdateId(0);
       setUpdatePrice(0);
       setError(null);
+      setMessage('Product price successfully updated.');
     } catch (err: any) {
       console.error('Price update error:', err.response?.data || err.message); // Debug
       setError(`Failed to update price: ${err.response?.data?.error || err.message}`);
@@ -96,9 +130,10 @@ export default function Admin() {
   if (loading) return <div className="container-fluid full-screen-section text-center">Loading...</div>;
 
   return (
-    <div className="container-fluid full-screen-section">
+    <div className="container-fluid full-screen-section" style={{ color: 'var(--white)'}}>
       <h1 className="mb-4">Admin Dashboard</h1>
       {error && <div className="alert alert-danger">{error}</div>}
+      {message && <div className="alert alert-success">{message}</div>}
 
       <h2>Current Products</h2>
       <div className="row g-4">
@@ -134,7 +169,7 @@ export default function Admin() {
         <input className="form-control" type="file" onChange={(e) => setNewImage(e.target.files?.[0] || null)} />
       </div>
       <div className="form-group mb-3">
-        <label>Auth Key</label>
+        <label>Authentication Key</label>
         <input className="form-control" value={authKey} onChange={(e) => setAuthKey(e.target.value)} />
       </div>
       <button className="btn btn-dark mt-3" onClick={addProduct}>Add Product</button>
@@ -149,10 +184,21 @@ export default function Admin() {
         <input className="form-control" type="number" value={updatePrice} onChange={(e) => setUpdatePrice(parseFloat(e.target.value))} />
       </div>
       <div className="form-group mb-3">
-        <label>Auth Key</label>
+        <label>Authentication Key</label>
         <input className="form-control" value={authKey} onChange={(e) => setAuthKey(e.target.value)} />
       </div>      
       <button className="btn btn-dark mt-3" onClick={updateProductPrice}>Update Price</button>
+
+      <h2 className="mt-5">Remove a Product</h2>
+      <div className="form-group mb-3">
+        <label>Product ID</label>
+        <input className="form-control" type="number" value={removeId} onChange={(e) => setRemoveId(parseInt(e.target.value))} />
+      </div>
+      <div className="form-group mb-3">
+        <label>Authentication Key</label>
+        <input className="form-control" value={authKey} onChange={(e) => setAuthKey(e.target.value)} />
+      </div>
+      <button className="btn btn-outline-danger mt-3" onClick={removeProduct}>Remove Product</button>
     </div>
   );
 }

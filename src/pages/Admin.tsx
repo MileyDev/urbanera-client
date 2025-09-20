@@ -46,9 +46,8 @@ export default function Admin() {
     formData.append('image', newImage);
 
     try {
-      await axios.post(`${API_BASE_URL}/products`, formData, {
+      await axios.post(`${API_BASE_URL}/products`, { apiKey: API_KEY, formData}, {
         headers: {
-          'X-API-Key': API_KEY,
           'Content-Type': 'multipart/form-data',
         },
       });
@@ -73,10 +72,9 @@ export default function Admin() {
       console.log('Updating price for ID:', updateId, 'Price:', updatePrice); // Debug
       const response = await axios.post(
         `${API_BASE_URL}/products/${updateId}/price`,
-        { price: updatePrice },
+        { apiKey: API_KEY, price: updatePrice },
         {
           headers: {
-            'X-API-Key': API_KEY,
             'Content-Type': 'application/json',
           },
         }

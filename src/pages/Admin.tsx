@@ -3,7 +3,7 @@ import axios from 'axios';
 import { type Product } from '../types/Product';
 
 const API_BASE_URL = 'https://urbanera-api-37beaa1d3e9b.herokuapp.com/api';
-const API_KEY = 'oluwa_juwon_lo_dev'; 
+
 
 export default function Admin() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -14,6 +14,7 @@ export default function Admin() {
   const [newPrice, setNewPrice] = useState(0);
   const [newDescription, setNewDescription] = useState('');
   const [newImage, setNewImage] = useState<File | null>(null);
+  const [authKey, setAuthKey] = useState('');
 
   const [updateId, setUpdateId] = useState(0);
   const [updatePrice, setUpdatePrice] = useState(0);
@@ -44,9 +45,10 @@ export default function Admin() {
     formData.append('price', newPrice.toString());
     formData.append('description', newDescription);
     formData.append('image', newImage);
+    formData.append('apiKey', authKey)
 
     try {
-      await axios.post(`${API_BASE_URL}/products`, { apiKey: API_KEY, formData}, {
+      await axios.post(`${API_BASE_URL}/products`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -56,6 +58,7 @@ export default function Admin() {
       setNewPrice(0);
       setNewDescription('');
       setNewImage(null);
+      setAuthKey('');
       setError(null);
     } catch (err) {
       setError('Failed to add product.');
@@ -72,7 +75,7 @@ export default function Admin() {
       console.log('Updating price for ID:', updateId, 'Price:', updatePrice); // Debug
       const response = await axios.post(
         `${API_BASE_URL}/products/${updateId}/price`,
-        { apiKey: API_KEY, price: updatePrice },
+        { apiKey: authKey, price: updatePrice },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -130,6 +133,10 @@ export default function Admin() {
         <label>Image</label>
         <input className="form-control" type="file" onChange={(e) => setNewImage(e.target.files?.[0] || null)} />
       </div>
+      <div className="form-group mb-3">
+        <label>Auth Key</label>
+        <input className="form-control" value={authKey} onChange={(e) => setAuthKey(e.target.value)} />
+      </div>
       <button className="btn btn-dark mt-3" onClick={addProduct}>Add Product</button>
 
       <h2 className="mt-5">Update Product Price</h2>
@@ -141,6 +148,10 @@ export default function Admin() {
         <label>New Price (NGN)</label>
         <input className="form-control" type="number" value={updatePrice} onChange={(e) => setUpdatePrice(parseFloat(e.target.value))} />
       </div>
+      <div className="form-group mb-3">
+        <label>Auth Key</label>
+        <input className="form-control" value={authKey} onChange={(e) => setAuthKey(e.target.value)} />
+      </div>      
       <button className="btn btn-dark mt-3" onClick={updateProductPrice}>Update Price</button>
     </div>
   );

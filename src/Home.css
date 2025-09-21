@@ -1,0 +1,46 @@
+.animate-slide-in {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.animate-slide-in.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.hero-section {
+  background: linear-gradient(135deg, #B8860B 0%, #1C2526 80%), url('https://urbanera-api-37beaa1d3e9b.herokuapp.com/images/topvest.jpg') no-repeat center/cover !important;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background-position: center;
+  background-size: cover;
+}
+
+.animate-fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.animate-fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.about-section {
+  background: linear-gradient(180deg, #1C2526 0%, #B8860B 100%);
+  color: var(--white);
+  padding: 5rem 0;
+}
+.footer-section {
+  background: linear-gradient(135deg, #B8860B 0%, #1C2526 100%);
+  padding: 3rem 0;
+}
+
+.footer-section a:hover {
+  color: var(--dark-gold);
+  transition: color 0.3s ease;
+}

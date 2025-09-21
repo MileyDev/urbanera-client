@@ -1,57 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css');
 
 :root {
   --dark-gold: #B8860B;
-  --black: #1c2526;
-  --white: #ffffff;
-  --gradient: linear-gradient(135deg, #b8860b 0%, #1c2526 100%);
+  --black: #1C2526;
+  --white: #FFFFFF;
+  --gradient: linear-gradient(135deg, #B8860B 0%, #1C2526 100%);
 
-
-  font-family: 'Quicksand', sans-serif !important;
+  font-family: 'Quicksand', sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
+  background-color: #1C2526;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-.full-screen-section {
-  min-height: 100vh;
-  padding: 2rem 0;
-  background: var(--gradient);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.card {
-  background: var(--black);
-  color: var(--white);
-  border: 1px solid var(--dark-gold);
-  border-radius: 10px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(184, 134, 11, 0.3);
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
 
 html, body, #root {
   width: 100%;
@@ -76,39 +42,27 @@ h1, h2, h3, h4, h5, h6, p, a, button, .btn, .card-title, .card-text, .alert {
   margin: 0;
 }
 
-.card-img-top, .img-fluid {
-  object-fit: cover;
-  width: 100%;
-  height: 250px; 
-}
-
-.full-screen-section {
-  padding: 2rem 1rem;
-  min-height: 100vh;
-  box-sizing: border-box;
-}
-
-
-body {
-  display: flex;
+.card {
   background: var(--black);
   color: var(--white);
-  margin: 0;
-  padding: 0;
-}
-
-.hero {
-  background: var(--gradient);
-  color: var(--black);
+  border: 1px solid var(--dark-gold);
+  border-radius: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
-  transform: scale(1.02);
-  transition: transform 0.2s;
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(184, 134, 11, 0.3);
+}
+
+.card-img-top, .img-fluid {
+  object-fit: cover;
+  width: 100%;
+  height: 250px;
 }
 
 .btn-dark {
-  background-color: var(--gradient);
+  background: var(--gradient);
   border-color: var(--dark-gold) !important;
   border-radius: 1px;
   color: var(--white);
@@ -117,7 +71,7 @@ body {
 }
 
 .btn-dark:hover {
-  background: linear-gradient(135deg, #1c2526 0%, #b8860b 100%);
+  background: linear-gradient(135deg, #1C2526 0%, #B8860B 100%);
   transform: translateY(-2px);
 }
 
@@ -143,7 +97,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .text-muted {
-  color: #b0b0b0 !important;
+  color: #bebbbb !important;
 }
 
 .badge {
@@ -166,7 +120,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .alert-danger {
   background: #4b1c1c;
-  border: 1px solid #b8860b;
+  border: 1px solid #B8860B;
   color: var(--white);
 }
 
@@ -181,9 +135,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -192,10 +148,7 @@ button:focus-visible {
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
+    background-color: #FFFFFF;
   }
   button {
     background-color: #f9f9f9;

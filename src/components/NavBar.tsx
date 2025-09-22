@@ -16,12 +16,12 @@ export default function NavBar() {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <Link className="nav-link" to="/shop" style={{ color: 'var(--white)', transition: 'color 0.3s ease'}}>Shop</Link>
+              <Link className="nav-link" to="/shop" style={{ color: 'var(--white)', transition: 'color 0.3s ease'}}>Shop<i className="bi bi-bag"></i></Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/cart" style={{ color: 'var(--white)', transition: 'color 0.3s ease'}}>
-                Cart {itemCount > 0 && <span className="badge bg-light text-dark ms-1">{itemCount}</span>}
-              </Link>
+                Cart <i className="bi bi-cart"></i>{itemCount > 0 && <span className="badge bg-light text-dark ms-1">{itemCount}</span>}
+              </Link>             
             </li>
           </ul>
         </div>

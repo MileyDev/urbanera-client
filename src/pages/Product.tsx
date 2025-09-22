@@ -58,7 +58,7 @@ export default function Product() {
             className="btn btn-dark btn-lg"
             onClick={() => addToCart({ ...product, quantity: 1 })}
           >
-            Add to Cart
+            Add to Cart <i className="bi bi-cart"></i>
           </button>
         </div>
       </div>

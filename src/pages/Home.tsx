@@ -28,7 +28,6 @@ export default function Home() {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
-          console.log('Visible element:', entry.target.className); // Debug
         }
       });
     }, { threshold: 0.1 });
@@ -45,10 +44,10 @@ export default function Home() {
       <div className="container-fluid hero-section">
         <div className="row align-items-center text-center">
           <div className="col-12">
-            <h1 className="display-3 fw-bold animate-slide-in" style={{ color: 'var(--dark-gold)', position: 'relative', zIndex: 1 }}>
+            <h1 className="display-3 fw-bold animate-slide-in" style={{ color: 'var(--dark-gold)', position: 'relative', zIndex: 1, fontWeight: 800 }}>
               UrbanEra: Streetwear Redefined
             </h1>
-            <p className="lead animate-slide-in" style={{ color: '#bebbbb', position: 'relative', zIndex: 1 }}>
+            <p className="lead animate-slide-in" style={{ color: 'var(--dark-gold)', position: 'relative', zIndex: 1, fontWeight: 900 }}>
               Discover bold, premium streetwear crafted for the modern urbanite.
             </p>
             <Link to="/shop" className="btn btn-dark btn-lg mt-3 animate-slide-in" style={{ position: 'relative', zIndex: 1 }}>
@@ -59,7 +58,7 @@ export default function Home() {
       </div>
 
       <div className="container-fluid py-5">
-        <h2 className="text-center mb-4 animate-slide-in" style={{ color: 'var(--dark-gold)' }}>Featured Collections</h2>
+        <h2 className="text-center mb-4 animate-slide-in" style={{ color: 'var(--black)', fontWeight: 700 }}>Featured Collections</h2>
         {loading && <div className="text-center text-muted">Loading products...</div>}
         {error && <div className="text-center text-danger">{error}</div>}
         {!loading && !error && featuredProducts.length === 0 && (
@@ -97,7 +96,7 @@ export default function Home() {
       <div className="container-fluid py-5 about-section">
         <div className="row text-center">
           <div className="col-12">
-            <h2 className="mb-4 animate-slide-in" style={{ color: 'var(--dark-gold)' }}>About UrbanEra</h2>
+            <h2 className="mb-4 animate-slide-in" style={{ color: 'var(--dark-gold)', fontWeight: 700 }}>About UrbanEra</h2>
             <p className="lead mx-auto animate-slide-in" style={{ color: '#bebbbb', maxWidth: '600px' }}>
               UrbanEra is where street meets art. Born in the heart of Nigeria’s urban culture, crafted by top craftsmen resulting in premium streetwear that blends bold designs with timeless quality. Join the movement.
             </p>

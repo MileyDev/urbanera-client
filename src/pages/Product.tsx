@@ -40,6 +40,7 @@ export default function Product() {
   return (
     <div className="container-fluid full-screen-section">
       <div className="row">
+        <h1 className="mb-4" style={{ fontWeight: 700 }}>Product Details</h1>
         <div className="col-md-6">
           <img
             src={product.imageUrl}

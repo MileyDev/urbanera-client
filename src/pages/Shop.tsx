@@ -23,7 +23,7 @@ export default function Shop() {
 
   return (
     <div className="container-fluid full-screen-section">
-      <h1 className="mb-4">Shop UrbanEra</h1>
+      <h1 className="mb-4" style={{ fontWeight: 700 }}>Shop UrbanEra</h1>
       <div className="row g-4">
         {products.map(product => (
           <div key={product.id} className="col-md-4">

@@ -77,7 +77,7 @@ export default function Admin() {
     }
 
     try {
-      console.log('Updating price for ID:', updateId, 'Price:', updatePrice, 'AuthKey', authKey); // Debug
+      console.log('Removing product with ID:', removeId, 'AuthKey', authKey); // Debug
       const response = await axios.post(
         `${API_BASE_URL}/products/${removeId}`,
         { apiKey: authKey },

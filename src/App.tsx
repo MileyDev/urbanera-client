@@ -12,18 +12,18 @@ import { Route, Routes } from 'react-router-dom'
 function App() {
   return (
     <div className="d-flex flex-column min-vh-100">
-    <CartProvider>
-            <NavBar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/product/:id" element={<Product />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/success" element={<Success />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="*" element={<div className="container-fluid full-screen-section text-center">404 - Page Not Found</div>} />
-      </Routes>
-    </CartProvider>
+      <CartProvider>
+        <NavBar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/shop" element={<Shop />} />
+          <Route path="/product/:id" element={<Product />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/success" element={<Success />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="*" element={<div className="container-fluid full-screen-section text-center">404 - Page Not Found</div>} />
+        </Routes>
+      </CartProvider>
     </div>
   )
 }

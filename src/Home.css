@@ -9,7 +9,7 @@
   transform: translateX(0);
 }
 .hero-section {
-  background: linear-gradient(135deg, #B8860B 0%, #1C2526 80%), url('https://urbanera-api-37beaa1d3e9b.herokuapp.com/images/topvest.jpg') no-repeat center/cover !important;
+  background: linear-gradient(135deg, rgba(238, 232, 211, 0.324) 0%, rgba(255, 213, 3, 0.324) 80%), url('https://urbanera-api-37beaa1d3e9b.herokuapp.com/images/hero.jpg') no-repeat center/cover !important;
   min-height: 100vh;
   display: flex;
   align-items: center;

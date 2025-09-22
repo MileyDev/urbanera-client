@@ -29,7 +29,7 @@ html, body, #root {
 }
 
 h1, h2, h3, h4, h5, h6, p, a, button, .btn, .card-title, .card-text, .alert {
-  font-family: 'Quicksand', 'Arial', sans-serif !important;
+  font-family: 'Quicksand', sans-serif !important;
 }
 
 .container-fluid {
@@ -42,10 +42,15 @@ h1, h2, h3, h4, h5, h6, p, a, button, .btn, .card-title, .card-text, .alert {
   margin: 0;
 }
 
+
+.flex-column {
+  background-color: var(--dark-gold);
+}
+
 .card {
-  background: var(--black);
-  color: var(--white);
-  border: 1px solid var(--dark-gold);
+  background: var(--white);
+  color: var(--black);
+  border: 1px solid var(--gradient);
   border-radius: 10px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }

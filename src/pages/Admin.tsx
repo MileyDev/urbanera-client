@@ -14,7 +14,7 @@ export default function Admin() {
   const [newName, setNewName] = useState('');
   const [newPrice, setNewPrice] = useState(0);
   const [newDescription, setNewDescription] = useState('');
-  const [newImage, setNewImage] = useState<File | null>(null);
+  const [newImage, setNewImage] = useState('');
   const [authKey, setAuthKey] = useState('');
 
   const [updateId, setUpdateId] = useState(0);
@@ -61,7 +61,7 @@ export default function Admin() {
       setNewName('');
       setNewPrice(0);
       setNewDescription('');
-      setNewImage(null);
+      setNewImage('');
       setAuthKey('');
       setMessage('Product created successfully');
       setError(null);
@@ -166,7 +166,7 @@ export default function Admin() {
       </div>
       <div className="form-group mb-3">
         <label>Image</label>
-        <input className="form-control" type="file" onChange={(e) => setNewImage(e.target.files?.[0] || null)} />
+        <input className="form-control" onChange={(e) => setNewImage(e.target.value)} />
       </div>
       <div className="form-group mb-3">
         <label>Authentication Key</label>

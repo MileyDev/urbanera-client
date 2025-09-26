@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { type Product } from '../types/Product';
+import { toast } from 'react-toastify';
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useContext(CartContext);
@@ -10,6 +11,19 @@ export default function ProductCard({ product }: { product: Product }) {
   const handleViewDetails = () => {
     console.log('Navigating to product:', product.id);
     navigate(`/product/${product.id}`);
+  };
+
+  const handleAddToCart = () => {
+    addToCart({ ...product, quantity: 1 });
+    toast.success(`${product.name} added to cart!`, {
+      position: 'top-right',
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: 'dark',
+    });
   };
 
   return (
@@ -31,14 +45,14 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="mt-auto d-flex gap-2">
           <button
             className="btn btn-dark"
-            style={{ borderColor: 'var(--dark-gold)'}}
+            style={{ borderColor: 'var(--dark-gold)' }}
             onClick={handleViewDetails}
           >
             View Details
           </button>
           <button
             className="btn btn-outline-danger"
-            onClick={() => addToCart({ ...product, quantity: 1 })}
+            onClick={handleAddToCart}
           >
             Add to Cart
           </button>

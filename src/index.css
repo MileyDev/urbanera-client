@@ -42,11 +42,12 @@ h1, h2, h3, h4, h5, h6, p, a, button, .btn, .card-title, .card-text, .alert {
   margin: 0;
 }
 
-
 .flex-column {
   background-color: var(--dark-gold);
 }
-
+.full-screen-section {
+  background-color: var(--dark-gold);
+}
 .card {
   background: var(--white);
   color: var(--black);

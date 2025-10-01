@@ -153,18 +153,18 @@ button:focus-visible {
 }
 
 .Toastify__toast--success {
-  background-color: var(--black) !important;
-  color: var(--white) !important;
+  background-color: var(--white) !important;
+  color: var(--black) !important;
   border: 1px solid var(--gradient) !important;
 }
 
 .Toastify__toast-body {
   font-family: 'Quicksand', sans-serif;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .Toastify__progress-bar--success {
-  background-color: var(--success) !important;
+  background-color: var(--dark-gold) !important;
 }
 
 .Toastify__close-button {

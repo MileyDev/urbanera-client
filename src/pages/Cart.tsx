@@ -2,15 +2,15 @@ import { useContext, useState } from 'react';
 import axios from 'axios';
 import { CartContext } from '../context/CartContext';
 
-// Define types for delivery details and cities
 interface DeliveryDetails {
+  firstName: string;
+  lastName: string;
   country: string;
   state: string;
   city: string;
   address: string;
 }
 
-// Define cities object type with index signature
 interface Cities {
   [key: string]: string[];
 }
@@ -19,6 +19,8 @@ export default function Cart() {
   const { cart, removeFromCart } = useContext(CartContext);
   const [email, setEmail] = useState('');
   const [deliveryDetails, setDeliveryDetails] = useState<DeliveryDetails>({
+    firstName: '',
+    lastName: '',
     country: '',
     state: '',
     city: '',
@@ -26,7 +28,6 @@ export default function Cart() {
   });
   const [error, setError] = useState<string | null>(null);
 
-  // Sample dropdown options (Nigeria-focused, expandable)
   const countries = ['Nigeria'];
   const states = [
     'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
@@ -36,10 +37,10 @@ export default function Cart() {
     'Yobe', 'Zamfara'
   ];
   const cities: Cities = {
-    Lagos: ['Ojota', 'Ikeja', 'Lekki', 'Victoria Island', 'Surulere', 'Agege', 'Ikorodu', 'Abule-Egba', 'Ebute Meta', 'Ogba'],
+    Lagos: ['Abule-Egba', 'Agege', 'Ebute Meta', 'Iju-Ishaga', 'Ikeja', 'Ikorodu', 'Lekki', 'Ogba', 'Ojota', 'Oshodi', 'Surulere', 'Victoria Island'],
     FCT: ['Abuja', 'Gwagwalada', 'Kuje'],
-    Ogun: ['Abeokuta', 'Ijebu-Ode', 'Sango-Ota'],
-    // Add more cities for other states as needed
+    Ogun: ['Abeokuta', 'Agbado', 'Ijebu-Ode', 'Sango-Ota'],
+    Oyo: ['Ibadan South', 'Ibadan North', 'Ibadan West'],
   };
 
   const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 0), 0);
@@ -49,7 +50,7 @@ export default function Cart() {
       setError('Please enter your email.');
       return;
     }
-    if (!deliveryDetails.country || !deliveryDetails.state || !deliveryDetails.city || !deliveryDetails.address) {
+    if (!deliveryDetails.firstName || !deliveryDetails.lastName || !deliveryDetails.country || !deliveryDetails.state || !deliveryDetails.city || !deliveryDetails.address) {
       setError('Please enter all delivery details.');
       return;
     }
@@ -71,7 +72,7 @@ export default function Cart() {
 
       const { checkoutUrl } = response.data;
       if (checkoutUrl) {
-        window.location.href = checkoutUrl; // Direct redirect
+        window.location.href = checkoutUrl; 
       } else {
         setError('No checkout URL received. Please try again.');
       }
@@ -88,6 +89,7 @@ export default function Cart() {
         <p className="text-muted">Your cart is empty.</p>
       ) : (
         <>
+        <h4 style={{ color: '#1a1a1a', fontWeight: 900 }}>Order Summary: ₦{total.toLocaleString()}</h4>
           <div className="row g-4">
             {cart.map(item => (
               <div key={item.id} className="col-md-4">
@@ -114,8 +116,31 @@ export default function Cart() {
               </div>
             ))}
           </div>
+          
           <div className="mt-4">
-            <h3 style={{ color: '#B8860B' }}>Total: ₦{total.toLocaleString()}</h3>
+            <h2>Contact Information</h2>
+            <div className="mb-3">
+              <label htmlFor="firstName" className="form-label" style={{ color: '#1C2526' }}>First Name</label>
+              <input
+                type="text"
+                className="form-control"
+                id="firstName"
+                value={deliveryDetails.firstName}
+                onChange={(e) => setDeliveryDetails({ ...deliveryDetails, firstName: e.target.value, lastName: '', country: '', state: '', city: '' })}
+                required
+                placeholder="John" />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="lastName" className="form-label" style={{ color: '#1c2526' }}>Last Name</label>
+              <input 
+              type="text"
+              className="form-control"
+              id="lastName"
+              value={deliveryDetails.lastName}
+              onChange={(e) => setDeliveryDetails({...deliveryDetails, lastName: e.target.value, country: '', state: '', city: '' })}
+              placeholder="Doe"
+              required />
+            </div>
             <div className="mb-3">
               <label htmlFor="email" className="form-label" style={{ color: '#1C2526' }}>Email</label>
               <input
@@ -128,6 +153,7 @@ export default function Cart() {
                 required
               />
             </div>
+            <h2>Shipping Address</h2>
             <div className="mb-3">
               <label htmlFor="country" className="form-label" style={{ color: '#1C2526' }}>Country</label>
               <select
@@ -177,14 +203,14 @@ export default function Cart() {
             </div>
             <div className="mb-3">
               <label htmlFor="address" className="form-label" style={{ color: '#1C2526' }}>Home Address</label>
-              <input 
-              className="form-control" 
-              id="address"
-              value={deliveryDetails.address}
-              onChange={(e) => setDeliveryDetails({ ...deliveryDetails, address: e.target.value })}
-              disabled={!deliveryDetails.city}
-              required
-              placeholder="Enter your street address" />
+              <input
+                className="form-control"
+                id="address"
+                value={deliveryDetails.address}
+                onChange={(e) => setDeliveryDetails({ ...deliveryDetails, address: e.target.value })}
+                disabled={!deliveryDetails.city}
+                required
+                placeholder="Enter your street address" />
             </div>
             <button className="btn btn-dark btn-lg" onClick={handleCheckout}>
               Proceed to Checkout

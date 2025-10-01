@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { type Product } from "../types/Product";
 import axios from "axios";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import '../Home.css';
 
 export default function Home() {
@@ -36,21 +39,62 @@ export default function Home() {
       observer.observe(el);
     });
 
+    console.log('Slider initialized with react-slick');
     return () => observer.disconnect();
   }, []);
+
+  const sliderSettings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 4000,
+    arrows: false,
+  };
 
   return (
     <>
       <div className="container-fluid hero-section">
+        <Slider {...sliderSettings}>
+          <div className="slide">
+            <img
+              src="https://res.cloudinary.com/dt67ut3jx/image/upload/f_auto,q_auto/v1758537256/hero_d0sx2y.jpg"
+              alt="Hero"
+              style={{ width: '100%', height: '100vh', objectFit: 'cover' }}
+              onLoad={() => console.log('Hero image loaded')}
+              onError={() => console.error('Failed to load hero_d0sx2y.jpg')}
+            />
+          </div>
+          <div className="slide">
+            <img
+              src="https://res.cloudinary.com/dt67ut3jx/image/upload/f_auto,q_auto/v1758877520/shoot1_r2j69r.jpg"
+              alt="Shoot 1"
+              style={{ width: '100%', height: '100vh', objectFit: 'cover' }}
+              onLoad={() => console.log('Shoot 1 image loaded')}
+              onError={() => console.error('Failed to load shoot1_r2j69r.jpg')}
+            />
+          </div>
+          <div className="slide">
+            <img
+              src="https://res.cloudinary.com/dt67ut3jx/image/upload/f_auto,q_auto/v1758877553/shoot2_px2cag.jpg"
+              alt="Shoot 2"
+              style={{ width: '100%', height: '100vh', objectFit: 'cover' }}
+              onLoad={() => console.log('Shoot 2 image loaded')}
+              onError={() => console.error('Failed to load shoot2_px2cag.jpg')}
+            />
+          </div>
+        </Slider>
         <div className="row align-items-center text-center">
           <div className="col-12">
-            <h1 className="display-3 fw-bold animate-slide-in" style={{ color: 'var(--dark-gold)', position: 'relative', zIndex: 1, fontWeight: 800 }}>
+            <h1 className="display-3 fw-bold animate-slide-in" style={{ color: 'var(--dark-gold)', position: 'relative', zIndex: 2, fontWeight: 800 }}>
               UrbanEra: Streetwear Redefined
             </h1>
-            <p className="lead animate-slide-in" style={{ color: 'var(--dark-gold)', position: 'relative', zIndex: 1, fontWeight: 900 }}>
+            <p className="lead animate-slide-in" style={{ color: 'var(--dark-gold)', position: 'relative', zIndex: 2, fontWeight: 900 }}>
               Discover bold, premium streetwear crafted for the modern urbanite.
             </p>
-            <Link to="/shop" className="btn btn-dark btn-lg mt-3 animate-slide-in" style={{ position: 'relative', zIndex: 1 }}>
+            <Link to="/shop" className="btn btn-dark btn-lg mt-3 animate-slide-in" style={{ position: 'relative', zIndex: 2 }}>
               Shop Now
             </Link>
           </div>

@@ -434,6 +434,7 @@ export default function Admin() {
                       <p>Product ID: {review.productId}</p>
                       <p>Rating: {review.rating} / 5</p>
                       <p>{review.comment}</p>
+                      <p>Posted by: {review.user?.username || 'Anonymous'}</p>
                       <p className="text-muted small">Posted on {new Date(review.createdAt).toLocaleDateString()}</p>
                       <button
                         className="btn btn-danger"

@@ -14,6 +14,7 @@ export default function Product() {
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
+  const [username, setUsername] = useState<string>('');
   const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
@@ -52,6 +53,10 @@ export default function Product() {
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!username.trim()) {
+      toast.error('Please enter a username!', { theme: 'dark' });
+      return;
+    }
     if (!rating || rating < 1 || rating > 5) {
       toast.error('Please select a rating between 1 and 5!', { theme: 'dark' });
       return;
@@ -59,19 +64,18 @@ export default function Product() {
     try {
       await axios.post('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/reviews', {
         productId: product?.id,
+        username,
         rating,
         comment
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       toast.success('Review submitted!', { theme: 'dark' });
+      setUsername('');
       setRating(0);
       setComment('');
-      // Refresh reviews
       const reviewsResponse = await axios.get(`https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/reviews/${id}`);
       setProduct((prev) => prev ? { ...prev, reviews: reviewsResponse.data } : null);
     } catch (err) {
-      toast.error('Failed to submit review. Please log in.', { theme: 'dark' });
+      toast.error('Failed to submit review.', { theme: 'dark' });
     }
   };
 
@@ -133,6 +137,18 @@ export default function Product() {
         <h2 style={{ color: 'var(--dark-gold)' }}>Leave a Review</h2>
         <form onSubmit={handleSubmitReview}>
           <div className="mb-3">
+            <label htmlFor="username" className="form-label" style={{ color: 'var(--white)' }}>Username</label>
+            <input
+              type="text"
+              id="username"
+              className="form-control"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Your username"
+              style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
+            />
+          </div>
+          <div className="mb-3">
             <label className="form-label" style={{ color: 'var(--white)' }}>Rating</label>
             <div className="d-flex gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -175,7 +191,9 @@ export default function Product() {
                 <FaStar color="#B8860B" /> {review.rating} / 5
               </p>
               <p className="mb-1">{review.comment}</p>
-              <p className="text-muted small">Posted on {new Date(review.createdAt).toLocaleDateString()}</p>
+              <p className="text-muted small">
+                Posted by {review.user?.username || 'Anonymous'} on {new Date(review.createdAt).toLocaleDateString()}
+              </p>
             </div>
           ))
         ) : (

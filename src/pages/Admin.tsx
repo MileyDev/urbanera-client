@@ -26,7 +26,7 @@ const Admin: React.FC = () => {
   });
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  
 
   useEffect(() => {
     if (token) {

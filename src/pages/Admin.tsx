@@ -1,50 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import { type Product, type Review } from '../types/Product';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  sizes: string[];
-}
-
-const Admin: React.FC = () => {
+export default function Admin() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [newProduct, setNewProduct] = useState({
     name: '',
     description: '',
     price: 0,
     imageUrl: '',
-    sizes: '',
+    sizes: '' as string,
   });
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
+  const [activeTab, setActiveTab] = useState<'products' | 'reviews'>('products');
 
   useEffect(() => {
     if (token) {
-      fetchProducts();
+      const fetchData = async () => {
+        try {
+          const [productsResponse, reviewsResponse] = await Promise.all([
+            axios.get('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products', {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.get('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/reviews', {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+          ]);
+          setProducts(productsResponse.data);
+          setReviews(reviewsResponse.data);
+        } catch (err) {
+          setError('Failed to load data.');
+          console.error('Fetch error:', err);
+        }
+      };
+      fetchData();
     }
   }, [token]);
-
-  const fetchProducts = async () => {
-    try {
-      const response = await axios.get('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log('Products fetched:', response.data);
-      setProducts(response.data);
-    } catch (err: any) {
-      console.error('Fetch products error:', err);
-      setError('Failed to fetch products.');
-    }
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,10 +57,10 @@ const Admin: React.FC = () => {
       setUsername('');
       setPassword('');
       setError(null);
-      console.log('Login successful:', token);
-    } catch (err: any) {
-      console.error('Login error:', err);
+      toast.success('Logged in successfully!', { theme: 'dark' });
+    } catch (err) {
       setError('Invalid username or password.');
+      toast.error('Invalid username or password.', { theme: 'dark' });
     }
   };
 
@@ -70,7 +68,9 @@ const Admin: React.FC = () => {
     localStorage.removeItem('token');
     setToken(null);
     setProducts([]);
+    setReviews([]);
     setError(null);
+    toast.info('Logged out.', { theme: 'dark' });
   };
 
   const handleAddProduct = async (e: React.FormEvent) => {
@@ -84,11 +84,14 @@ const Admin: React.FC = () => {
       await axios.post('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products', product, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      toast.success('Product added!', { theme: 'dark' });
       setNewProduct({ name: '', description: '', price: 0, imageUrl: '', sizes: '' });
-      fetchProducts();
-      console.log('Product added:', product);
-    } catch (err: any) {
-      console.error('Add product error:', err);
+      const response = await axios.get('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProducts(response.data);
+    } catch (err) {
+      toast.error('Failed to add product.', { theme: 'dark' });
       setError('Failed to add product.');
     }
   };
@@ -105,11 +108,14 @@ const Admin: React.FC = () => {
       await axios.put(`https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products/${editProduct.id}`, product, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      toast.success('Product updated!', { theme: 'dark' });
       setEditProduct(null);
-      fetchProducts();
-      console.log('Product updated:', product);
-    } catch (err: any) {
-      console.error('Update product error:', err);
+      const response = await axios.get('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProducts(response.data);
+    } catch (err) {
+      toast.error('Failed to update product.', { theme: 'dark' });
       setError('Failed to update product.');
     }
   };
@@ -119,250 +125,332 @@ const Admin: React.FC = () => {
       await axios.delete(`https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchProducts();
-      console.log('Product deleted:', id);
-    } catch (err: any) {
-      console.error('Delete product error:', err);
+      toast.success('Product deleted!', { theme: 'dark' });
+      setProducts(products.filter(p => p.id !== id));
+    } catch (err) {
+      toast.error('Failed to delete product.', { theme: 'dark' });
       setError('Failed to delete product.');
+    }
+  };
+
+  const handleDeleteReview = async (id: number) => {
+    try {
+      await axios.delete(`https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/reviews/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success('Review deleted!', { theme: 'dark' });
+      setReviews(reviews.filter(r => r.id !== id));
+    } catch (err) {
+      toast.error('Failed to delete review.', { theme: 'dark' });
+      setError('Failed to delete review.');
     }
   };
 
   if (!token) {
     return (
-      <div className="container mt-5 mt-md-5 pt-5 px-3">
-        <h1 className="display-4 text-center mb-4" style={{ color: '#B8860B' }}>Admin Login</h1>
-        <div className="row justify-content-center">
+      <div className="container-fluid full-screen-section">
+        <h1 className="mb-4" style={{ fontWeight: 700, color: 'var(--dark-gold)' }}>Admin Login</h1>
+        {error && <div className="alert alert-danger">{error}</div>}
+        <form onSubmit={handleLogin} className="row justify-content-center">
           <div className="col-md-6">
-            {error && <div className="alert alert-danger">{error}</div>}
-            <form onSubmit={handleLogin}>
-              <div className="mb-3">
-                <label htmlFor="username" className="form-label" style={{ color: '#1C2526' }}>
-                  Username
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="mb-3">
-                <label htmlFor="password" className="form-label" style={{ color: '#1C2526' }}>
-                  Password
-                </label>
-                <input
-                  type="password"
-                  className="form-control"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <button type="submit" className="btn btn-primary w-100" style={{ backgroundColor: '#B8860B', borderColor: '#B8860B' }}>
-                Login
-              </button>
-            </form>
+            <div className="mb-3">
+              <label htmlFor="username" className="form-label" style={{ color: 'var(--white)' }}>
+                Username
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="password" className="form-label" style={{ color: 'var(--white)' }}>
+                Password
+              </label>
+              <input
+                type="password"
+                className="form-control"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
+              />
+            </div>
+            <button
+              type="submit"
+              className="btn btn-dark w-100"
+              style={{ borderColor: 'var(--dark-gold)', color: 'var(--dark-gold)' }}
+            >
+              Login
+            </button>
           </div>
-        </div>
+        </form>
       </div>
     );
   }
 
   return (
-    <div className="container mt-5 mt-md-5 pt-5 px-3">
-      <h1 className="display-4 text-center mb-4" style={{ color: '#B8860B' }}>Admin Dashboard</h1>
+    <div className="container-fluid full-screen-section">
+      <h1 className="mb-4" style={{ fontWeight: 700, color: 'var(--dark-gold)' }}>Admin Dashboard</h1>
       <div className="text-end mb-4">
-        <button className="btn btn-outline-secondary" onClick={handleLogout} style={{ color: '#1C2526', borderColor: '#1C2526' }}>
+        <button
+          className="btn btn-outline-danger"
+          style={{ borderColor: 'var(--dark-gold)', color: 'var(--dark-gold)' }}
+          onClick={handleLogout}
+        >
           Logout
         </button>
       </div>
-      {error && <div className="alert alert-danger">{error}</div>}
-
-      {/* Add Product Form */}
-      <h2 className="h4 mb-3" style={{ color: '#1C2526' }}>Add New Product</h2>
-      <form onSubmit={handleAddProduct}>
-        <div className="row">
-          <div className="col-md-6 mb-3">
-            <label htmlFor="name" className="form-label" style={{ color: '#1C2526' }}>Name</label>
-            <input
-              type="text"
-              className="form-control"
-              id="name"
-              value={newProduct.name}
-              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-              required
-            />
-          </div>
-          <div className="col-md-6 mb-3">
-            <label htmlFor="price" className="form-label" style={{ color: '#1C2526' }}>Price (₦)</label>
-            <input
-              type="number"
-              className="form-control"
-              id="price"
-              value={newProduct.price}
-              onChange={(e) => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
-              required
-            />
-          </div>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="description" className="form-label" style={{ color: '#1C2526' }}>Description</label>
-          <textarea
-            className="form-control"
-            id="description"
-            value={newProduct.description}
-            onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-            required
-          ></textarea>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="imageUrl" className="form-label" style={{ color: '#1C2526' }}>Image URL</label>
-          <input
-            type="text"
-            className="form-control"
-            id="imageUrl"
-            value={newProduct.imageUrl}
-            onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="sizes" className="form-label" style={{ color: '#1C2526' }}>Sizes (comma-separated)</label>
-          <input
-            type="text"
-            className="form-control"
-            id="sizes"
-            value={newProduct.sizes}
-            onChange={(e) => setNewProduct({ ...newProduct, sizes: e.target.value })}
-            placeholder="S,M,L"
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary" style={{ backgroundColor: '#B8860B', borderColor: '#B8860B' }}>
-          Add Product
-        </button>
-      </form>
-
-      {/* Edit Product Form */}
-      {editProduct && (
-        <div className="mt-5">
-          <h2 className="h4 mb-3" style={{ color: '#1C2526' }}>Edit Product</h2>
-          <form onSubmit={handleEditProduct}>
+      {error && <div className="alert alert-danger mb-3">{error}</div>}
+      <ul className="nav nav-tabs mb-4">
+        <li className="nav-item">
+          <button
+            className={`nav-link ${activeTab === 'products' ? 'active' : ''}`}
+            onClick={() => setActiveTab('products')}
+            style={{ color: activeTab === 'products' ? '#B8860B' : '#FFFFFF', background: '#1C2526' }}
+          >
+            Products
+          </button>
+        </li>
+        <li className="nav-item">
+          <button
+            className={`nav-link ${activeTab === 'reviews' ? 'active' : ''}`}
+            onClick={() => setActiveTab('reviews')}
+            style={{ color: activeTab === 'reviews' ? '#B8860B' : '#FFFFFF', background: '#1C2526' }}
+          >
+            Reviews
+          </button>
+        </li>
+      </ul>
+      {activeTab === 'products' ? (
+        <>
+          <h2 style={{ color: 'var(--dark-gold)' }}>Add Product</h2>
+          <form onSubmit={handleAddProduct} className="mb-4">
             <div className="row">
               <div className="col-md-6 mb-3">
-                <label htmlFor="editName" className="form-label" style={{ color: '#1C2526' }}>Name</label>
+                <label htmlFor="name" className="form-label" style={{ color: 'var(--white)' }}>Name</label>
                 <input
                   type="text"
                   className="form-control"
-                  id="editName"
-                  value={editProduct.name}
-                  onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })}
+                  id="name"
+                  value={newProduct.name}
+                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
                   required
+                  style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
                 />
               </div>
               <div className="col-md-6 mb-3">
-                <label htmlFor="editPrice" className="form-label" style={{ color: '#1C2526' }}>Price (₦)</label>
+                <label htmlFor="price" className="form-label" style={{ color: 'var(--white)' }}>Price (₦)</label>
                 <input
                   type="number"
                   className="form-control"
-                  id="editPrice"
-                  value={editProduct.price}
-                  onChange={(e) => setEditProduct({ ...editProduct, price: Number(e.target.value) })}
+                  id="price"
+                  value={newProduct.price}
+                  onChange={(e) => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
                   required
+                  style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
                 />
               </div>
             </div>
             <div className="mb-3">
-              <label htmlFor="editDescription" className="form-label" style={{ color: '#1C2526' }}>Description</label>
+              <label htmlFor="description" className="form-label" style={{ color: 'var(--white)' }}>Description</label>
               <textarea
                 className="form-control"
-                id="editDescription"
-                value={editProduct.description}
-                onChange={(e) => setEditProduct({ ...editProduct, description: e.target.value })}
+                id="description"
+                value={newProduct.description}
+                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
                 required
-              ></textarea>
-            </div>
-            <div className="mb-3">
-              <label htmlFor="editImageUrl" className="form-label" style={{ color: '#1C2526' }}>Image URL</label>
-              <input
-                type="text"
-                className="form-control"
-                id="editImageUrl"
-                value={editProduct.imageUrl}
-                onChange={(e) => setEditProduct({ ...editProduct, imageUrl: e.target.value })}
-                required
+                style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="editSizes" className="form-label" style={{ color: '#1C2526' }}>Sizes (comma-separated)</label>
+              <label htmlFor="imageUrl" className="form-label" style={{ color: 'var(--white)' }}>Image URL</label>
               <input
                 type="text"
                 className="form-control"
-                id="editSizes"
-                value={editProduct.sizes.join(',')}
-                onChange={(e) => setEditProduct({ ...editProduct, sizes: e.target.value.split(',').map((s) => s.trim()) })}
+                id="imageUrl"
+                value={newProduct.imageUrl}
+                onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
                 required
+                style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
               />
             </div>
-            <button type="submit" className="btn btn-primary me-2" style={{ backgroundColor: '#B8860B', borderColor: '#B8860B' }}>
-              Save Changes
-            </button>
+            <div className="mb-3">
+              <label htmlFor="sizes" className="form-label" style={{ color: 'var(--white)' }}>Sizes (comma-separated)</label>
+              <input
+                type="text"
+                className="form-control"
+                id="sizes"
+                value={newProduct.sizes}
+                onChange={(e) => setNewProduct({ ...newProduct, sizes: e.target.value })}
+                placeholder="S,M,L"
+                required
+                style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
+              />
+            </div>
             <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => setEditProduct(null)}
-              style={{ backgroundColor: '#1C2526', borderColor: '#1C2526' }}
+              type="submit"
+              className="btn btn-dark"
+              style={{ borderColor: 'var(--dark-gold)', color: 'var(--dark-gold)' }}
             >
-              Cancel
+              Add Product
             </button>
           </form>
-        </div>
-      )}
 
-      {/* Product Table */}
-      <h2 className="h4 mt-5 mb-3" style={{ color: '#1C2526' }}>Products</h2>
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Price (₦)</th>
-            <th scope="col">Description</th>
-            <th scope="col">Sizes</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product) => (
-            <tr key={product.id}>
-              <td>{product.name}</td>
-              <td>{product.price}</td>
-              <td>{product.description}</td>
-              <td>{product.sizes.join(', ')}</td>
-              <td>
+          {editProduct && (
+            <div className="mt-5">
+              <h2 style={{ color: 'var(--dark-gold)' }}>Edit Product</h2>
+              <form onSubmit={handleEditProduct}>
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label htmlFor="editName" className="form-label" style={{ color: 'var(--white)' }}>Name</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="editName"
+                      value={editProduct.name}
+                      onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })}
+                      required
+                      style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
+                    />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label htmlFor="editPrice" className="form-label" style={{ color: 'var(--white)' }}>Price (₦)</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      id="editPrice"
+                      value={editProduct.price}
+                      onChange={(e) => setEditProduct({ ...editProduct, price: Number(e.target.value) })}
+                      required
+                      style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
+                    />
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="editDescription" className="form-label" style={{ color: 'var(--white)' }}>Description</label>
+                  <textarea
+                    className="form-control"
+                    id="editDescription"
+                    value={editProduct.description}
+                    onChange={(e) => setEditProduct({ ...editProduct, description: e.target.value })}
+                    required
+                    style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="editImageUrl" className="form-label" style={{ color: 'var(--white)' }}>Image URL</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="editImageUrl"
+                    value={editProduct.imageUrl}
+                    onChange={(e) => setEditProduct({ ...editProduct, imageUrl: e.target.value })}
+                    required
+                    style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="editSizes" className="form-label" style={{ color: 'var(--white)' }}>Sizes (comma-separated)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="editSizes"
+                    value={editProduct.sizes.join(',')}
+                    onChange={(e) => setEditProduct({ ...editProduct, sizes: e.target.value.split(',').map((s) => s.trim()) })}
+                    required
+                    style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
+                  />
+                </div>
                 <button
-                  className="btn btn-outline-primary me-2"
-                  onClick={() => setEditProduct(product)}
-                  style={{ borderColor: '#B8860B', color: '#B8860B' }}
+                  type="submit"
+                  className="btn btn-dark me-2"
+                  style={{ borderColor: 'var(--dark-gold)', color: 'var(--dark-gold)' }}
                 >
-                  Edit
+                  Save Changes
                 </button>
                 <button
-                  className="btn btn-outline-danger"
-                  onClick={() => handleDeleteProduct(product.id)}
-                  style={{ borderColor: '#1C2526', color: '#1C2526' }}
+                  type="button"
+                  className="btn btn-dark"
+                  onClick={() => setEditProduct(null)}
+                  style={{ borderColor: 'var(--dark-gold)', color: 'var(--dark-gold)' }}
                 >
-                  Delete
+                  Cancel
                 </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </form>
+            </div>
+          )}
+
+          <h2 style={{ color: 'var(--dark-gold)' }}>Products</h2>
+          <div className="row g-4">
+            {products.map(product => (
+              <div key={product.id} className="col-md-4">
+                <div className="card h-100 shadow-sm" style={{ background: '#1a1a1a', color: 'var(--white)' }}>
+                  <img
+                    src={product.imageUrl}
+                    className="card-img-top"
+                    alt={product.name}
+                    style={{ height: '200px', objectFit: 'cover' }}
+                    onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/200')}
+                  />
+                  <div className="card-body">
+                    <h5 className="card-title">{product.name}</h5>
+                    <p className="card-text">{product.description}</p>
+                    <p className="card-text fw-bold">₦{product.price.toLocaleString()}</p>
+                    <p className="card-text">Sizes: {product.sizes.join(', ')}</p>
+                    <button
+                      className="btn btn-dark me-2"
+                      style={{ borderColor: 'var(--dark-gold)', color: 'var(--dark-gold)' }}
+                      onClick={() => setEditProduct(product)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => handleDeleteProduct(product.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <h2 style={{ color: 'var(--dark-gold)' }}>Reviews</h2>
+          {reviews.length ? (
+            <div className="row g-4">
+              {reviews.map(review => (
+                <div key={review.id} className="col-md-4">
+                  <div className="card h-100 shadow-sm" style={{ background: '#1a1a1a', color: 'var(--white)' }}>
+                    <div className="card-body">
+                      <p>Product ID: {review.productId}</p>
+                      <p>Rating: {review.rating} / 5</p>
+                      <p>{review.comment}</p>
+                      <p className="text-muted small">Posted on {new Date(review.createdAt).toLocaleDateString()}</p>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => handleDeleteReview(review.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted">No reviews yet.</p>
+          )}
+        </>
+      )}
     </div>
   );
-};
-
-export default Admin;
+}

@@ -7,4 +7,14 @@ export interface Product {
   sizes: string[];
   quantity?: number; 
   selectedSize? : string;
+  reviews? : Review[]
+}
+
+export interface Review {
+  id: number;
+  productId: number;
+  userId: number | null;
+  rating: number;
+  comment: string;
+  createdAt: string;
 }

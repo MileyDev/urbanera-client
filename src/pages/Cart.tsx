@@ -89,7 +89,7 @@ export default function Cart() {
 
   return (
     <div className="container-fluid full-screen-section">
-      <h1 className="mb-4" style={{ fontWeight: 700, color: 'var(--dark-gold)' }}>Your Cart</h1>
+      <h1 className="mb-4" style={{ fontWeight: 700, color: 'var(--black)' }}>Your Cart</h1>
       {error && <div className="alert alert-danger mb-3">{error}</div>}
       {cart.length === 0 ? (
         <p className="text-muted">Your cart is empty.</p>

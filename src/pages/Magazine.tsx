@@ -3,6 +3,7 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '../Home.css';
 
 interface Shoot {
   id: number;
@@ -52,12 +53,13 @@ const Magazine: React.FC = () => {
   }
 
   return (
-    <div className="container mt-5 mt-md-5 pt-5 px-3">
-      <h1 className="display-4 text-center mb-4" style={{ color: '#B8860B' }}>The Urban Magazine</h1>
+    <>
+    <h1 className="display-4 text-center mb-4" style={{ color: '#060606ff', fontWeight: 700 }}>The Urban Magazine</h1>
+    <div className="container-fluid py-3 mt-3 mt-md-3 pt-3 px-3">
       <Slider {...settings}>
         {shoots.map((shoot) => (
           <div key={shoot.id} className="p-3">
-            <div className="d-flex flex-column align-items-center">
+            <div className="container-fluid">
               <img
                 src={shoot.imageUrl}
                 alt={shoot.title}
@@ -73,6 +75,7 @@ const Magazine: React.FC = () => {
         ))}
       </Slider>
     </div>
+    </>
   );
 };
 

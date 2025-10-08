@@ -37,7 +37,7 @@
 .slide {
   width: 100%;
   height: 100vh;
-  display: flex !important; /* Ensure flex for image */
+  display: flex !important; 
 }
 
 .slide img {
@@ -74,10 +74,9 @@
   transition: color 0.3s ease;
 }
 
-/* Slick dots styling */
 .slick-dots {
   bottom: 20px;
-  z-index: 2; /* Above gradient */
+  z-index: 2; 
 }
 
 .slick-dots li button:before {
@@ -99,4 +98,9 @@
 .magazine-slider .slick-next:before {
   color: var(--dark-gold);
   font-size: 30px;
+}
+
+.slick-slider {
+  display: flex;
+  position: relative !important;
 }

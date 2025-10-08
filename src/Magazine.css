@@ -1,0 +1,10 @@
+.magazine-slider .slick-prev,
+.magazine-slider .slick-next {
+  color: var(--dark-gold);
+  z-index: 2;
+}
+.magazine-slider .slick-prev:before,
+.magazine-slider .slick-next:before {
+  color: var(--dark-gold);
+  font-size: 30px;
+}

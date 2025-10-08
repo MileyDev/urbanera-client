@@ -4,6 +4,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../Home.css';
+import '../Magazine.css';
 
 interface Shoot {
   id: number;
@@ -56,7 +57,7 @@ const Magazine: React.FC = () => {
   return (
     <>
     <h1 className="display-4 text-center mb-4" style={{ color: '#060606ff', fontWeight: 700 }}>The Urban Magazine</h1>
-    <div className="container-fluid py-3 mt-3 mt-md-3 pt-3 px-3">
+    <div className="container-fluid py-3 mt-3 mt-md-3 pt-3 px-3" style={{ display: 'flex', position: 'relative'}}>
       <Slider {...settings}>
         {shoots.map((shoot) => (
           <div key={shoot.id} className="p-3">

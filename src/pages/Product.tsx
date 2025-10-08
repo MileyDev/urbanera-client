@@ -191,7 +191,7 @@ export default function Product() {
                 <FaStar color="#B8860B" /> {review.rating} / 5
               </p>
               <p className="mb-1">{review.comment}</p>
-              <p className="text-muted small">
+              <p className="mb-1" style={{ color: 'gray', fontSize: 'small'}}>
                 Posted by {review.user?.username || 'Anonymous'} on {new Date(review.createdAt).toLocaleDateString()}
               </p>
             </div>

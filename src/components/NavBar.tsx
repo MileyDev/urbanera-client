@@ -23,6 +23,11 @@ export default function NavBar() {
                 Cart <i className="bi bi-cart"></i>{itemCount > 0 && <span className="badge bg-light text-dark ms-1">{itemCount}</span>}
               </Link>             
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/magazine" style={{ color: 'var(--white)', transition: 'color 0.3s ease'}}>
+               The Urban LookBook <i className="bi bi-book-half"></i>
+              </Link>
+            </li>
           </ul>
         </div>
       </div>

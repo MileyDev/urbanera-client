@@ -6,6 +6,7 @@ import Product from './pages/Product'
 import Cart from './pages/Cart'
 import Admin from './pages/Admin'
 import Success from './pages/Success'
+import Magazine from './pages/Magazine'
 import './index.css'
 import { Route, Routes } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
@@ -35,6 +36,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/success" element={<Success />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/magazine" element={<Magazine />} />
           <Route path="*" element={<div className="container-fluid full-screen-section text-center">404 - Page Not Found</div>} />
         </Routes>
       </CartProvider>

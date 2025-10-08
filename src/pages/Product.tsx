@@ -3,12 +3,14 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { CartContext } from '../context/CartContext';
 import { type Product } from '../types/Product';
+import { toast } from 'react-toastify';
 
 export default function Product() {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string>('');
   const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
@@ -33,6 +35,32 @@ export default function Product() {
       });
   }, [id]);
 
+  const handleAddToCart = () => {
+    if (!product) return;
+    if (!selectedSize) {
+      toast.error('Please select a size!', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: 'dark',
+      });
+      return;
+    }
+    addToCart({ ...product, quantity: 1, selectedSize });
+    toast.success(`${product.name} (Size: ${selectedSize}) added to cart!`, {
+      position: 'top-right',
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: 'dark',
+    });
+  };
+
   if (loading) return <div className="container-fluid full-screen-section text-center">Loading...</div>;
   if (error) return <div className="container-fluid full-screen-section text-center text-danger">{error}</div>;
   if (!product) return <div className="container-fluid full-screen-section text-center">Product not found</div>;
@@ -40,7 +68,7 @@ export default function Product() {
   return (
     <div className="container-fluid full-screen-section">
       <div className="row">
-        <h1 className="mb-4" style={{ fontWeight: 700 }}>Product Details</h1>
+        <h1 className="mb-4" style={{ fontWeight: 700, color: 'var(--dark-gold)' }}>Product Details</h1>
         <div className="col-md-6">
           <img
             src={product.imageUrl}
@@ -51,12 +79,32 @@ export default function Product() {
           />
         </div>
         <div className="col-md-6 d-flex flex-column justify-content-center">
-          <h1 className="mb-3">{product.name}</h1>
+          <h1 className="mb-3" style={{ color: 'var(--white)' }}>{product.name}</h1>
           <p className="text-muted mb-3">{product.description}</p>
-          <p className="fs-4 fw-bold mb-4">₦{product.price.toLocaleString()}</p>
+          <p className="fs-4 fw-bold mb-4" style={{ color: 'var(--white)' }}>₦{product.price.toLocaleString()}</p>
+          <div className="mb-3">
+            <label htmlFor="size-select" className="form-label" style={{ color: 'var(--white)' }}>
+              Size
+            </label>
+            <select
+              id="size-select"
+              className="form-select"
+              value={selectedSize}
+              onChange={(e) => setSelectedSize(e.target.value)}
+              style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
+            >
+              <option value="">Select a size</option>
+              {product.sizes.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
           <button
             className="btn btn-dark btn-lg"
-            onClick={() => addToCart({ ...product, quantity: 1 })}
+            style={{ borderColor: 'var(--dark-gold)', color: 'var(--dark-gold)' }}
+            onClick={handleAddToCart}
           >
             Add to Cart <i className="bi bi-cart"></i>
           </button>

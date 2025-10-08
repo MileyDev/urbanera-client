@@ -4,5 +4,7 @@ export interface Product {
   price: number;
   imageUrl: string;
   description: string;
-  quantity?: number; // Optional to match backend Product model
+  sizes: string[];
+  quantity?: number; 
+  selectedSize? : string;
 }

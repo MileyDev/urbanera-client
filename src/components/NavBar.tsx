@@ -7,9 +7,9 @@ export default function NavBar() {
   const itemCount = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
 
   return (
-    <nav className="navbar navbar-expand-lg sticky-top" style={{ background: 'var(--gradient)' }}>
+    <nav className="navbar navbar-expand-lg sticky-top" style={{ background: 'var(--dark-gold)' }}>
       <div className="container">
-        <Link className="navbar-brand fw-bold" to="/" style={{ color: 'var(--white)' }}>UrbanEra</Link>
+        <Link className="navbar-brand fw-bold" to="/" style={{ color: 'var(--black)' }}>UrbanEra</Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span className="navbar-toggler-icon" style={{ color: 'white'}}></span>
         </button>

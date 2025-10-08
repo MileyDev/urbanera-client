@@ -11,7 +11,7 @@ export default function NavBar() {
       <div className="container">
         <Link className="navbar-brand fw-bold" to="/" style={{ color: 'var(--white)' }}>UrbanEra</Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span className="navbar-toggler-icon"></span>
+          <span className="navbar-toggler-icon" style={{ color: 'white'}}></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">

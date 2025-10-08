@@ -52,8 +52,8 @@ const Magazine: React.FC = () => {
   }
 
   return (
-    <div className="container my-5 px-2">
-      <h1 className="display-4 text-center mb-5" style={{ color: '#060606ff' }}>The Urban Magazine</h1>
+    <div className="container mt-5 mt-md-5 pt-5 px-3">
+      <h1 className="display-4 text-center mb-4" style={{ color: '#B8860B' }}>The Urban Magazine</h1>
       <Slider {...settings}>
         {shoots.map((shoot) => (
           <div key={shoot.id} className="p-3">
@@ -65,8 +65,8 @@ const Magazine: React.FC = () => {
                 style={{ maxWidth: '800px', height: '500px', objectFit: 'cover' }}
               />
               <div className="text-center mt-3">
-                <h2 className="h4 font-weight-bold" style={{ fontWeight: 500, color: '#1C2526' }}>{shoot.title}</h2>
-                <p className="text-muted" style={{ fontWeight: 500 }}>{shoot.description}</p>
+                <h2 className="h4 font-weight-bold" style={{ color: '#1C2526' }}>{shoot.title}</h2>
+                <p className="text-muted">{shoot.description}</p>
               </div>
             </div>
           </div>

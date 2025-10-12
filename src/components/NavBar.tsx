@@ -20,7 +20,7 @@ export default function NavBar() {
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/cart" style={{ color: 'var(--black)', transition: 'color 0.3s ease'}}>
-                Cart <i className="bi bi-cart"></i>{itemCount > 0 && <span className="badge bg-light text-dark ms-1">{itemCount}</span>}
+                Cart <i className="bi bi-cart"></i>{itemCount > 0 && <span className="badge bg-dark text-light ms-1">{itemCount}</span>}
               </Link>             
             </li>
             <li className="nav-item">

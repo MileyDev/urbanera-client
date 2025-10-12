@@ -74,9 +74,9 @@ export default function ProductCard({ product }: { product: Product }) {
         <h5 className="card-title">{product.name}</h5>
         <p className="card-text text-muted mb-2">{product.description}</p>
         <p className="card-text mb-2">
-          <FaStar color="#B8860B" /> {averageRating} ({product.reviews?.length || 0} reviews)
+          <FaStar color="lemon" /> {averageRating} ({product.reviews?.length || 0} reviews)
         </p>
-        <p className="card-text fw-bold">₦{product.price.toLocaleString()}</p>
+        <p className="card-text fw-bold" style={{ color: 'black'}}>₦{product.price.toLocaleString()}</p>
         <div className="mb-3">
           <label htmlFor={`size-${product.id}`} className="form-label" style={{ color: 'var(--white)' }}>
             Size

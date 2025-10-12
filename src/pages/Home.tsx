@@ -13,7 +13,6 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch featured products
     axios.get('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products')
       .then(res => {
         console.log('Products fetched:', res.data);
@@ -26,7 +25,6 @@ export default function Home() {
         setLoading(false);
       });
 
-    // Scroll animations
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -140,8 +138,8 @@ export default function Home() {
       <div className="container-fluid py-5 about-section">
         <div className="row text-center">
           <div className="col-12">
-            <h2 className="mb-4 animate-slide-in" style={{ color: 'var(--dark-gold)', fontWeight: 700 }}>About UrbanEra</h2>
-            <p className="lead mx-auto animate-slide-in" style={{ color: '#bebbbb', maxWidth: '600px' }}>
+            <h2 className="mb-4 animate-slide-in" style={{ color: 'var(--black)', fontWeight: 700 }}>About UrbanEra</h2>
+            <p className="lead mx-auto animate-slide-in" style={{ color: 'black', maxWidth: '600px', fontWeight: 500 }}>
               UrbanEra is where street meets art. Born in the heart of Nigeria’s urban culture, crafted by top craftsmen resulting in premium streetwear that blends bold designs with timeless quality. Join the movement.
             </p>
           </div>
@@ -151,7 +149,7 @@ export default function Home() {
       <div className="container-fluid py-5 footer-section">
         <div className="row text-center">
           <div className="col-12">
-            <h2 className="mb-4 animate-slide-in" style={{ color: 'var(--dark-gold)' }}>Join the Members Club</h2>
+            <h2 className="mb-4 animate-slide-in" style={{ color: 'black', fontWeight: 700 }}>Join our Members Club</h2>
             <div className="mx-auto" style={{ maxWidth: '400px' }}>
               <input
                 type="email"

@@ -103,10 +103,10 @@ export default function Product() {
         <div className="col-md-6 d-flex flex-column justify-content-center">
           <h1 className="mb-3" style={{ color: 'var(--white)' }}>{product.name}</h1>
           <p className="text-muted mb-3">{product.description}</p>
-          <p className="fs-5 mb-3" style={{ color: 'var(--white)' }}>
-            <FaStar color="#B8860B" /> {averageRating} ({product.reviews?.length || 0} reviews)
+          <p className="fs-5 mb-3" style={{ color: 'var(--black)' }}>
+            <FaStar color="#8fff44ff" /> {averageRating} ({product.reviews?.length || 0} reviews)
           </p>
-          <p className="fs-4 fw-bold mb-4" style={{ color: 'var(--white)' }}>₦{product.price.toLocaleString()}</p>
+          <p className="fs-4 fw-bold mb-4" style={{ color: 'var(--black)' }}>₦{product.price.toLocaleString()}</p>
           <div className="mb-3">
             <label htmlFor="size-select" className="form-label" style={{ color: 'var(--white)' }}>
               Size
@@ -155,7 +155,7 @@ export default function Product() {
                 <FaStar
                   key={star}
                   size={24}
-                  color={star <= rating ? '#B8860B' : '#6c757d'}
+                  color={star <= rating ? '#8fff44ff' : '#6c757d'}
                   style={{ cursor: 'pointer' }}
                   onClick={() => setRating(star)}
                 />
@@ -188,7 +188,7 @@ export default function Product() {
           product.reviews.map((review: Review) => (
             <div key={review.id} className="mb-3 p-3 border rounded" style={{ background: '#1C2526', color: 'var(--white)' }}>
               <p className="mb-1">
-                <FaStar color="#B8860B" /> {review.rating} / 5
+                <FaStar color="#8fff44ff" /> {review.rating} / 5
               </p>
               <p className="mb-1">{review.comment}</p>
               <p className="mb-1" style={{ color: 'gray', fontSize: 'small'}}>

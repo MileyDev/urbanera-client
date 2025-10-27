@@ -26,10 +26,10 @@ export default function Admin() {
       const fetchData = async () => {
         try {
           const [productsResponse, reviewsResponse] = await Promise.all([
-            axios.get('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products', {
+            axios.get('https://urbaneraapi.onrender.com/api/products', {
               headers: { Authorization: `Bearer ${token}` },
             }),
-            axios.get('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/reviews', {
+            axios.get('https://urbaneraapi.onrender.com/api/reviews', {
               headers: { Authorization: `Bearer ${token}` },
             }),
           ]);
@@ -47,7 +47,7 @@ export default function Admin() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/auth/login', {
+      const response = await axios.post('https://urbaneraapi.onrender.com/api/auth/login', {
         username,
         password,
       });
@@ -81,12 +81,12 @@ export default function Admin() {
         price: Number(newProduct.price),
         sizes: newProduct.sizes.split(',').map((s) => s.trim()),
       };
-      await axios.post('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products', product, {
+      await axios.post('https://urbaneraapi.onrender.com/api/products', product, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success('Product added!', { theme: 'dark' });
       setNewProduct({ name: '', description: '', price: 0, imageUrl: '', sizes: '' });
-      const response = await axios.get('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products', {
+      const response = await axios.get('https://urbaneraapi.onrender.com/api/products', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProducts(response.data);
@@ -105,12 +105,12 @@ export default function Admin() {
         price: Number(editProduct.price),
         sizes: editProduct.sizes,
       };
-      await axios.put(`https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products/${editProduct.id}`, product, {
+      await axios.put(`https://urbaneraapi.onrender.com/api/products/${editProduct.id}`, product, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success('Product updated!', { theme: 'dark' });
       setEditProduct(null);
-      const response = await axios.get('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products', {
+      const response = await axios.get('https://urbaneraapi.onrender.com/api/products', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProducts(response.data);
@@ -122,7 +122,7 @@ export default function Admin() {
 
   const handleDeleteProduct = async (id: number) => {
     try {
-      await axios.delete(`https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products/${id}`, {
+      await axios.delete(`https://urbaneraapi.onrender.com/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success('Product deleted!', { theme: 'dark' });
@@ -135,7 +135,7 @@ export default function Admin() {
 
   const handleDeleteReview = async (id: number) => {
     try {
-      await axios.delete(`https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/reviews/${id}`, {
+      await axios.delete(`https://urbaneraapi.onrender.com/api/reviews/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success('Review deleted!', { theme: 'dark' });

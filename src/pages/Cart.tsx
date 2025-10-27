@@ -60,7 +60,7 @@ export default function Cart() {
 
     setError(null);
     try {
-      const response = await axios.post('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/checkout/create-checkout-session', {
+      const response = await axios.post('https://urbaneraapi.onrender.com/api/checkout/create-checkout-session', {
         email,
         deliveryDetails,
         items: cart.map(item => ({

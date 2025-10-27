@@ -20,7 +20,7 @@ const Magazine: React.FC = () => {
   useEffect(() => {
     const fetchShoots = async () => {
       try {
-        const response = await fetch('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/shoots');
+        const response = await fetch('https://urbaneraapi.onrender.com/api/shoots');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

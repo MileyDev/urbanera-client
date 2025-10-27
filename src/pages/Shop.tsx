@@ -13,7 +13,7 @@ export default function Shop() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const url = `https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products?search=${encodeURIComponent(searchQuery)}`;
+        const url = `https://urbaneraapi.onrender.com/api/products?search=${encodeURIComponent(searchQuery)}`;
         console.log(`Fetching products from: ${url}`);
         const response = await axios.get(url);
         console.log('Products fetched:', response.data);

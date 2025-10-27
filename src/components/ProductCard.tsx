@@ -15,7 +15,7 @@ export default function ProductCard({ product }: { product: Product }) {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(`https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/reviews/${product.id}`);
+        const response = await axios.get(`https://urbaneraapi.onrender.com/api/reviews/${product.id}`);
         const reviews = response.data;
         if (reviews.length) {
           const avg = (reviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / reviews.length).toFixed(1);

@@ -13,7 +13,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    axios.get('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products')
+    axios.get('https://urbaneraapi.onrender.com/api/products')
       .then(res => {
         console.log('Products fetched:', res.data);
         setFeaturedProducts([...res.data.slice(0, 3)]);
@@ -158,7 +158,7 @@ export default function Home() {
               />
               <button className="btn btn-dark btn-lg animate-slide-in">Subscribe</button>
             </div>
-            <div className="mt-4" style={{ color: '#bebbbb' }}>
+            <div className="mt-4" style={{ color: '#1a1a1a' }}>
               <a href="https://wa.me/+2349117666722" className="mx-2 text-muted animate-slide-in">
                 <i className="bi bi-whatsapp" style={{ fontSize: '1.5rem' }}></i>
               </a>

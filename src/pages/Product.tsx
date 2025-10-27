@@ -27,8 +27,8 @@ export default function Product() {
     const fetchProduct = async () => {
       try {
         const [productResponse, reviewsResponse] = await Promise.all([
-          axios.get(`https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/products/${id}`),
-          axios.get(`https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/reviews/${id}`)
+          axios.get(`https://urbaneraapi.onrender.com/api/products/${id}`),
+          axios.get(`https://urbaneraapi.onrender.com/api/reviews/${id}`)
         ]);
         setProduct({ ...productResponse.data, reviews: reviewsResponse.data });
         setLoading(false);
@@ -62,7 +62,7 @@ export default function Product() {
       return;
     }
     try {
-      await axios.post('https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/reviews', {
+      await axios.post('https://urbaneraapi.onrender.com/api/reviews', {
         productId: product?.id,
         username,
         rating,
@@ -72,7 +72,7 @@ export default function Product() {
       setUsername('');
       setRating(0);
       setComment('');
-      const reviewsResponse = await axios.get(`https://urbanera-api-37beaa1d3e9b.herokuapp.com/api/reviews/${id}`);
+      const reviewsResponse = await axios.get(`https://urbaneraapi.onrender.com/api/reviews/${id}`);
       setProduct((prev) => prev ? { ...prev, reviews: reviewsResponse.data } : null);
     } catch (err) {
       toast.error('Failed to submit review.', { theme: 'dark' });

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { type Product } from '../types/Product';
 import ProductCard from '../components/ProductCard';
-import '../index.css';
+
 
 export default function Shop() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -29,8 +29,15 @@ export default function Shop() {
   }, [searchQuery]);
 
   return (
-    <div className="container-fluid full-screen-section">
-      <h1 className="mb-4" style={{ fontWeight: 700, color: 'var(--dark-gold)' }}>Shop</h1>
+    <div className="container-fluid section section--alt">
+      <h1 className="section-title mb-4" style={{ textAlign: "center" }}>
+        Drops
+      </h1>
+
+      <p className="section-lead" style={{ marginBottom: 24 }}>
+        Search by name, category, or drop.
+      </p>
+
       <div className="mb-4">
         <input
           type="text"
@@ -38,14 +45,16 @@ export default function Shop() {
           placeholder="Search products..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ maxWidth: '500px', margin: '0 auto' }}
+          style={{ maxWidth: 520, margin: "0 auto" }}
         />
       </div>
+
       {loading && <div className="text-center text-muted">Loading products...</div>}
       {error && <div className="text-center text-danger">{error}</div>}
       {!loading && !error && products.length === 0 && (
         <div className="text-center text-muted">No products found.</div>
       )}
+
       <div className="row g-4">
         {products.map(product => (
           <div key={product.id} className="col-md-4">

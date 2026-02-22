@@ -1,0 +1,131 @@
+/* NavBar.css */
+.ue-nav{
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  backdrop-filter: blur(10px);
+  background: rgba(11,15,20,0.72);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.ue-nav .navbar-brand{
+  color: rgba(255,255,255,0.92) !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ue-nav .ue-link{
+  color: rgba(255,255,255,0.78) !important;
+  text-decoration: none;
+  transition: color 0.18s ease;
+}
+
+.ue-nav .ue-link:hover{
+  color: var(--accent) !important;
+}
+
+.ue-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.02);
+}
+
+.ue-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(45,107,255,0.20);
+  border: 1px solid rgba(45,107,255,0.45);
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* Hamburger */
+.ue-menu-btn{
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: rgba(255,255,255,0.88);
+}
+
+/* Drawer overlay */
+.ue-drawer-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 1200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+
+.ue-drawer-overlay.open{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Drawer panel */
+.ue-drawer{
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: min(88vw, 360px);
+  background: rgba(11,15,20,0.92);
+  border-left: 1px solid rgba(255,255,255,0.10);
+  z-index: 1300;
+  transform: translateX(100%);
+  transition: transform 0.22s ease;
+  padding: 18px;
+}
+
+.ue-drawer.open{
+  transform: translateX(0);
+}
+
+.ue-drawer-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.ue-drawer-links{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+  padding-top: 16px;
+}
+
+.ue-drawer-link{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.02);
+  color: rgba(255,255,255,0.86);
+  text-decoration:none;
+}
+
+.ue-drawer-link:hover{
+  border-color: rgba(45,107,255,0.40);
+  color: white;
+}
+
+/* Desktop layout */
+@media (min-width: 992px){
+  .ue-menu-btn{ display:none; }
+}

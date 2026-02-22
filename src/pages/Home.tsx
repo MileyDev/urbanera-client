@@ -85,23 +85,33 @@ export default function Home() {
           </div>
         </Slider>
         <div className="row align-items-center text-center">
-          <div className="col-12">
-            <h1 className="display-3 fw-bold animate-slide-in" style={{ color: 'var(--dark-gold)', position: 'relative', zIndex: 2, fontWeight: 800 }}>
-              UrbanEra: Streetwear Redefined
+          <div className="col-12 hero-copy">
+            <div className="hero-eyebrow animate-slide-in">Lagos roots. Global execution.</div>
+
+            <h1 className="hero-title animate-slide-in">
+              UrbanEra <span className="accent">Streetwear</span> Redefined
             </h1>
-            <p className="lead animate-slide-in" style={{ color: 'var(--dark-gold)', position: 'relative', zIndex: 2, fontWeight: 900 }}>
-              Discover bold, premium streetwear crafted for the modern urbanite.
+
+            <p className="hero-sub animate-slide-in">
+              Bold, premium pieces built for the city—crafted with intent, not noise.
             </p>
-            <Link to="/shop" className="btn btn-dark btn-lg mt-3 animate-slide-in" style={{ position: 'relative', zIndex: 2 }}>
-              Shop Now
-            </Link>
+
+            <div className="d-flex gap-3 justify-content-center mt-4">
+              <Link to="/shop" className="btn-ue btn-ue-primary animate-slide-in">
+                Shop the Drop <i className="bi bi-arrow-right"></i>
+              </Link>
+
+              <Link to="/about" className="btn-ue btn-ue-ghost animate-slide-in">
+                The Story
+              </Link>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="container-fluid py-5">
-        <h2 className="text-center mb-4 animate-slide-in" style={{ color: 'var(--black)', fontWeight: 700 }}>Featured Collections</h2>
-        {loading && <div className="text-center text-muted">Loading products...</div>}
+      <div className="container-fluid section section--alt">
+        <h2 className="section-title animate-slide-in">Featured Drops</h2>
+        {loading && <center className="text-center text-muted">Loading products...</center>}
         {error && <div className="text-center text-danger">{error}</div>}
         {!loading && !error && featuredProducts.length === 0 && (
           <div className="text-center text-muted">No products available.</div>
@@ -135,12 +145,12 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="container-fluid py-5 about-section">
+      <div className="container-fluid section">
         <div className="row text-center">
           <div className="col-12">
-            <h2 className="mb-4 animate-slide-in" style={{ color: 'var(--black)', fontWeight: 700 }}>About UrbanEra</h2>
-            <p className="lead mx-auto animate-slide-in" style={{ color: 'black', maxWidth: '600px', fontWeight: 500 }}>
-              UrbanEra is where street meets art. Born in the heart of Nigeria’s urban culture, crafted by top craftsmen resulting in premium streetwear that blends bold designs with timeless quality. Join the movement.
+            <h2 className="section-title animate-slide-in">About UrbanEra</h2>
+            <p className="section-lead animate-slide-in">
+              Born from Nigeria’s urban culture—built with discipline, craft, and the energy of the streets.
             </p>
           </div>
         </div>

@@ -1,47 +1,41 @@
-import Home from './pages/Home'
-import CartProvider from './context/CartContext'
-import Shop from './pages/Shop'
-import NavBar from './components/NavBar'
-import Product from './pages/Product'
-import Cart from './pages/Cart'
-import Admin from './pages/Admin'
-import Success from './pages/Success'
-import Magazine from './pages/Magazine'
-import './index.css'
-import { Route, Routes } from 'react-router-dom'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css';
+import { Route, Routes, Navigate } from "react-router-dom";
+import Home from "./pages/Home";
+import Drops from "./pages/Shop";            
+import DropDetail from "./pages/DropDetail";
+import Product from "./pages/Product";
+import Cart from "./pages/Cart";
+import Admin from "./pages/Admin";
+import Success from "./pages/Success";
+import Magazine from "./pages/Magazine";
+import CartProvider from "./context/CartContext";
+import NavBar from "./components/NavBar";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
     <div className="d-flex flex-column min-vh-100">
       <CartProvider>
         <NavBar />
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="dark"
-        />
+        <ToastContainer theme="dark" position="top-right" autoClose={3000} />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/shop" element={<Shop />} />
+
+          <Route path="/drops" element={<Drops />} />
+          <Route path="/drops/:slug" element={<DropDetail />} />
+
+          <Route path="/shop" element={<Navigate to="/drops" replace />} />
+
           <Route path="/product/:id" element={<Product />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/success" element={<Success />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/magazine" element={<Magazine />} />
-          <Route path="*" element={<div className="container-fluid full-screen-section text-center">404 - Page Not Found</div>} />
+
+          <Route path="*" element={<div className="container-fluid section text-center">404 - Page Not Found</div>} />
         </Routes>
       </CartProvider>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

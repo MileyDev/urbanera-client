@@ -5,9 +5,17 @@ export interface Product {
   imageUrl: string;
   description: string;
   sizes: string[];
-  quantity?: number; 
-  selectedSize? : string;
-  reviews? : Review[]
+  quantity?: number;
+  selectedSize?: string;
+
+  // new (from API)
+  ratingAvg?: number;
+  reviewCount?: number;
+
+  // new (for drops)
+  collection?: { slug: string; title: string; season?: string };
+
+  dropOrder?: number | null;
 }
 
 export interface Review {

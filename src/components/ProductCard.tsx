@@ -1,92 +1,84 @@
-import { useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CartContext } from '../context/CartContext';
-import { type Product } from '../types/Product';
-import { toast } from 'react-toastify';
-import { FaStar } from 'react-icons/fa';
-import axios from 'axios';
+import { useContext, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { CartContext } from "../context/CartContext";
+import { type Product } from "../types/Product";
+import { toast } from "react-toastify";
+import { FaStar } from "react-icons/fa";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useContext(CartContext);
   const navigate = useNavigate();
-  const [selectedSize, setSelectedSize] = useState<string>('');
-  const [averageRating, setAverageRating] = useState<string>('No reviews');
+  const [selectedSize, setSelectedSize] = useState<string>("");
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const response = await axios.get(`https://urbaneraapi.onrender.com/api/reviews/${product.id}`);
-        const reviews = response.data;
-        if (reviews.length) {
-          const avg = (reviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / reviews.length).toFixed(1);
-          setAverageRating(avg);
-        }
-      } catch (err) {
-        console.error('Fetch reviews error:', err);
-      }
-    };
-    fetchReviews();
-  }, [product.id]);
+  const ratingText = useMemo(() => {
+    if (typeof product.ratingAvg === "number") return product.ratingAvg.toFixed(1);
+    return "—";
+  }, [product.ratingAvg]);
 
-  const handleViewDetails = () => {
-    console.log('Navigating to product:', product.id);
-    navigate(`/product/${product.id}`);
-  };
+  const reviewCount = product.reviewCount ?? 0;
+
+  const handleViewDetails = () => navigate(`/product/${product.id}`);
 
   const handleAddToCart = () => {
     if (!selectedSize) {
-      toast.error('Please select a size!', {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: 'dark',
-      });
+      toast.error("Please select a size!", { theme: "dark", autoClose: 2500 });
       return;
     }
+
     addToCart({ ...product, quantity: 1, selectedSize });
+
     toast.success(`${product.name} (Size: ${selectedSize}) added to cart!`, {
-      position: 'top-right',
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: 'dark',
+      theme: "dark",
+      autoClose: 2500,
     });
   };
 
   return (
-    <div className="card h-100 shadow-sm" style={{ background: '#1a1a1a' }}>
-      <img
-        src={product.imageUrl}
-        className="card-img-top"
-        alt={product.name}
-        style={{ height: '250px', objectFit: 'cover', width: '100%' }}
-        onError={(e) => {
-          e.currentTarget.src = 'https://via.placeholder.com/250';
-          console.error(`Failed to load image: ${product.imageUrl}`);
-        }}
-      />
-      <div className="card-body d-flex flex-column" style={{ color: 'var(--white)' }}>
+    <div className="ue-product h-100">
+      <div className="ue-product-media">
+        {product.collection?.title && (
+          <div className="ue-tag">
+            DROP <b>{product.collection.season ?? ""}</b>
+          </div>
+        )}
+
+        <img
+          src={product.imageUrl}
+          className="card-img-top"
+          alt={product.name}
+          onError={(e) => {
+            e.currentTarget.src = "https://via.placeholder.com/250";
+          }}
+        />
+      </div>
+
+      <div className="card-body d-flex flex-column">
         <h5 className="card-title">{product.name}</h5>
-        <p className="card-text text-muted mb-2">{product.description}</p>
-        <p className="card-text mb-2">
-          <FaStar color="lemon" /> {averageRating} ({product.reviews?.length || 0} reviews)
+
+        <p className="card-text text-muted mb-3" style={{ minHeight: 42 }}>
+          {product.description}
         </p>
-        <p className="card-text fw-bold" style={{ color: 'black'}}>₦{product.price.toLocaleString()}</p>
+
+        <div className="ue-meta mb-2">
+          <span className="ue-price">₦{product.price.toLocaleString()}</span>
+
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <FaStar style={{ color: "var(--accent)" }} />
+            {ratingText}
+            {reviewCount > 0 ? ` (${reviewCount})` : ""}
+          </span>
+        </div>
+
         <div className="mb-3">
-          <label htmlFor={`size-${product.id}`} className="form-label" style={{ color: 'var(--white)' }}>
+          <label htmlFor={`size-${product.id}`} className="form-label" style={{ color: "var(--muted)" }}>
             Size
           </label>
+
           <select
             id={`size-${product.id}`}
-            className="form-select"
+            className="ue-select w-100"
             value={selectedSize}
             onChange={(e) => setSelectedSize(e.target.value)}
-            style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
           >
             <option value="">Select a size</option>
             {product.sizes.map((size) => (
@@ -96,18 +88,12 @@ export default function ProductCard({ product }: { product: Product }) {
             ))}
           </select>
         </div>
-        <div className="mt-auto d-flex gap-2">
-          <button
-            className="btn btn-dark"
-            style={{ borderColor: 'var(--dark-gold)', color: 'var(--dark-gold)' }}
-            onClick={handleViewDetails}
-          >
+
+        <div className="ue-actions mt-auto">
+          <button className="ue-btn" onClick={handleViewDetails}>
             View Details
           </button>
-          <button
-            className="btn btn-outline-danger"
-            onClick={handleAddToCart}
-          >
+          <button className="ue-btn ue-btn-primary" onClick={handleAddToCart}>
             Add to Cart
           </button>
         </div>

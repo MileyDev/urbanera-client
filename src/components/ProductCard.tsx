@@ -1,13 +1,29 @@
 import { useContext, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CartContext } from "../context/CartContext";
-import { type Product } from "../types/Product";
-import { toast } from "react-toastify";
+import {
+  Box,
+  Badge,
+  Heading,
+  Text,
+  Image,
+  VStack,
+  HStack,
+  Button,
+  Select,
+  useToast,
+} from "@chakra-ui/react";
+import { motion } from "framer-motion";
 import { FaStar } from "react-icons/fa";
+import { CartContext } from "../context/CartContext";
+import type { Product } from "../types/Product";
+
+const MotionBox = motion(Box);
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useContext(CartContext);
   const navigate = useNavigate();
+  const toast = useToast();
+
   const [selectedSize, setSelectedSize] = useState<string>("");
 
   const ratingText = useMemo(() => {
@@ -21,83 +37,228 @@ export default function ProductCard({ product }: { product: Product }) {
 
   const handleAddToCart = () => {
     if (!selectedSize) {
-      toast.error("Please select a size!", { theme: "dark", autoClose: 2500 });
+      toast({
+        position: "bottom-right",
+        duration: 2500,
+        isClosable: true,
+        render: () => (
+          <Box
+            bg="black"
+            color="white"
+            borderRadius="xl"
+            border="1px solid rgba(255,255,255,0.14)"
+            boxShadow="0 20px 50px rgba(0,0,0,0.65)"
+            p={4}
+            maxW="360px"
+          >
+            <Text fontWeight="800">Pick a size first</Text>
+            <Text mt={1} fontSize="sm" color="whiteAlpha.700">
+              Select a size before adding to cart.
+            </Text>
+          </Box>
+        ),
+      });
       return;
     }
 
     addToCart({ ...product, quantity: 1, selectedSize });
 
-    toast.success(`${product.name} (Size: ${selectedSize}) added to cart!`, {
-      theme: "dark",
-      autoClose: 2500,
+    toast({
+      position: "bottom-right",
+      duration: 2500,
+      isClosable: true,
+      render: () => (
+        <Box
+          bg="black"
+          color="white"
+          borderRadius="2xl"
+          border="1px solid rgba(45,107,255,0.35)"
+          boxShadow="0 26px 70px rgba(0,0,0,0.75)"
+          p={4}
+          maxW="380px"
+        >
+          <HStack spacing={4} align="start">
+            <Image
+              src={product.imageUrl}
+              alt={product.name}
+              boxSize="70px"
+              borderRadius="xl"
+              objectFit="cover"
+              border="1px solid rgba(255,255,255,0.12)"
+            />
+            <VStack align="start" spacing={1}>
+              <Text fontWeight="900" letterSpacing="0.02em">
+                Added to Cart
+              </Text>
+              <Text fontSize="sm" color="whiteAlpha.700" noOfLines={1}>
+                {product.name}
+              </Text>
+              <Text fontSize="sm" color="blue.300" fontWeight="800">
+                Size {selectedSize}
+              </Text>
+            </VStack>
+          </HStack>
+        </Box>
+      ),
     });
   };
 
   return (
-    <div className="ue-product h-100">
-      <div className="ue-product-media">
-        {product.collection?.title && (
-          <div className="ue-tag">
-            DROP <b>{product.collection.season ?? ""}</b>
-          </div>
-        )}
-
-        <img
+    <MotionBox
+      whileHover={{ y: -8 }}
+      transition={{ duration: 0.25 }}
+      borderRadius="2xl"
+      overflow="hidden"
+      border="1px solid"
+      borderColor="whiteAlpha.200"
+      bg="whiteAlpha.50"
+      boxShadow="0 18px 55px rgba(0,0,0,0.65)"
+      position="relative"
+      h="100%"
+    >
+      {/* Media */}
+      <Box position="relative">
+        <Image
           src={product.imageUrl}
-          className="card-img-top"
           alt={product.name}
-          onError={(e) => {
-            e.currentTarget.src = "https://via.placeholder.com/250";
+          w="100%"
+          h="280px"
+          objectFit="cover"
+          filter="contrast(1.06) saturate(0.95)"
+          onError={(e: any) => {
+            e.currentTarget.src = "https://via.placeholder.com/280";
           }}
         />
-      </div>
 
-      <div className="card-body d-flex flex-column">
-        <h5 className="card-title">{product.name}</h5>
+        {/* cinematic overlay */}
+        <Box
+          position="absolute"
+          inset={0}
+          bgGradient="linear(to-t, blackAlpha.900, blackAlpha.700 40%, transparent 80%)"
+        />
 
-        <p className="card-text text-muted mb-3" style={{ minHeight: 42 }}>
+        {/* Drop tag */}
+        {product.collection?.season && (
+          <Badge
+            position="absolute"
+            top={4}
+            left={4}
+            px={3}
+            py={1}
+            borderRadius="full"
+            bg="rgba(45,107,255,0.18)"
+            border="1px solid rgba(45,107,255,0.35)"
+            color="white"
+            textTransform="uppercase"
+            letterSpacing="0.14em"
+            fontSize="xs"
+            backdropFilter="blur(8px)"
+          >
+            DROP <b style={{ marginLeft: 6 }}>{product.collection.season}</b>
+          </Badge>
+        )}
+
+        {/* subtle edge glow */}
+        <Box
+          position="absolute"
+          inset={0}
+          pointerEvents="none"
+          boxShadow="inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 80px rgba(45,107,255,0.12)"
+        />
+      </Box>
+
+      {/* Body */}
+      <VStack align="start" spacing={3} p={4}>
+        <Heading
+          fontSize="xl"
+          fontWeight="700"
+          letterSpacing="0.02em"
+          textTransform="uppercase"
+          color="white"
+          lineHeight="1.05"
+          noOfLines={2}
+        >
+          {product.name}
+        </Heading>
+
+        <Text color="whiteAlpha.700" fontSize="sm" noOfLines={2} minH="42px">
           {product.description}
-        </p>
+        </Text>
 
-        <div className="ue-meta mb-2">
-          <span className="ue-price">₦{product.price.toLocaleString()}</span>
+        {/* Price + rating */}
+        <HStack w="full" justify="space-between" pt={1}>
+          <Text fontWeight="900" fontSize="lg" color="white">
+            ₦{product.price.toLocaleString()}
+          </Text>
 
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-            <FaStar style={{ color: "var(--accent)" }} />
-            {ratingText}
-            {reviewCount > 0 ? ` (${reviewCount})` : ""}
-          </span>
-        </div>
+          <HStack spacing={2} color="whiteAlpha.800">
+            <FaStar color="#2D6BFF" />
+            <Text fontSize="sm" fontWeight="700">
+              {ratingText}
+              {reviewCount > 0 ? ` (${reviewCount})` : ""}
+            </Text>
+          </HStack>
+        </HStack>
 
-        <div className="mb-3">
-          <label htmlFor={`size-${product.id}`} className="form-label" style={{ color: "var(--muted)" }}>
+        {/* Size */}
+        <Box w="full">
+          <Text fontSize="sm" color="whiteAlpha.700" mb={2} fontWeight="700">
             Size
-          </label>
+          </Text>
 
-          <select
-            id={`size-${product.id}`}
-            className="ue-select w-100"
+          <Select
             value={selectedSize}
             onChange={(e) => setSelectedSize(e.target.value)}
+            bg="rgba(255,255,255,0.03)"
+            borderColor="whiteAlpha.200"
+            color="white"
+            borderRadius="xl"
+            _hover={{ borderColor: "blue.400" }}
+            _focusVisible={{
+              borderColor: "blue.400",
+              boxShadow: "0 0 0 4px rgba(45,107,255,0.18)",
+            }}
           >
-            <option value="">Select a size</option>
+            <option value="" style={{ color: "#111" }}>
+              Select a size
+            </option>
             {product.sizes.map((size) => (
-              <option key={size} value={size}>
+              <option key={size} value={size} style={{ color: "#111" }}>
                 {size}
               </option>
             ))}
-          </select>
-        </div>
+          </Select>
+        </Box>
 
-        <div className="ue-actions mt-auto">
-          <button className="ue-btn" onClick={handleViewDetails}>
+        {/* Actions */}
+        <HStack w="full" pt={2} spacing={3} mt="auto">
+          <Button
+            variant="outline"
+            w="full"
+            borderRadius="xl"
+            borderColor="whiteAlpha.300"
+            color="white"
+            _hover={{ bg: "whiteAlpha.100", borderColor: "whiteAlpha.500" }}
+            onClick={handleViewDetails}
+          >
             View Details
-          </button>
-          <button className="ue-btn ue-btn-primary" onClick={handleAddToCart}>
+          </Button>
+
+          <Button
+            w="full"
+            borderRadius="xl"
+            bg="rgba(45,107,255,0.95)"
+            color="white"
+            fontWeight="900"
+            _hover={{ bg: "rgba(45,107,255,0.85)", transform: "translateY(-1px)" }}
+            _active={{ transform: "translateY(0px)" }}
+            boxShadow="0 16px 40px rgba(45,107,255,0.22)"
+            onClick={handleAddToCart}
+          >
             Add to Cart
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </HStack>
+      </VStack>
+    </MotionBox>
   );
 }

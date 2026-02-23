@@ -1,11 +1,32 @@
-import { useState, useEffect, useContext, useMemo } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { CartContext } from "../context/CartContext";
 import type { Product, Review } from "../types/Product";
+import { CartContext } from "../context/CartContext";
 import { toast } from "react-toastify";
-import { FaStar } from "react-icons/fa";
 import ProductCard from "../components/ProductCard";
+import { FaStar } from "react-icons/fa";
+
+import {
+  Box,
+  Container,
+  Heading,
+  Text,
+  HStack,
+  VStack,
+  Badge,
+  Image,
+  Button,
+  SimpleGrid,
+  Divider,
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea,
+  Select,
+  Spinner,
+  Center,
+} from "@chakra-ui/react";
 
 const API = "https://urbaneraapi.onrender.com/api";
 
@@ -27,7 +48,7 @@ export default function ProductPage() {
   const [username, setUsername] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Related products
+  // More from this drop
   const [related, setRelated] = useState<Product[]>([]);
   const [relatedLoading, setRelatedLoading] = useState(false);
 
@@ -59,7 +80,7 @@ export default function ProductPage() {
 
         setProduct(productRes.data);
         setReviews(reviewsRes.data ?? []);
-      } catch (err) {
+      } catch {
         setError("Failed to load product or reviews.");
         setProduct(null);
         setReviews([]);
@@ -77,15 +98,22 @@ export default function ProductPage() {
       try {
         setRelatedLoading(true);
 
-        const res = await axios.get<Product[]>(`${API}/products`, {
-          params: { collection: slug },
-        });
-
-        const items = (res.data ?? [])
-          .filter((p) => p.id !== currentId)
-          .slice(0, 6);
-
-        setRelated(items);
+        /**
+         * Preferred (backend): /products?collection=<slug>
+         * If your API doesn't support it, fallback to: GET /collections/<slug> then use its products.
+         */
+        try {
+          const res = await axios.get<Product[]>(`${API}/products`, { params: { collection: slug } });
+          const items = (res.data ?? []).filter((p) => p.id !== currentId).slice(0, 6);
+          setRelated(items);
+          return;
+        } catch {
+          // fallback: /collections/{slug} (if your backend returns products)
+          const colRes = await axios.get<any>(`${API}/collections/${slug}`);
+          const products: Product[] = (colRes.data?.products ?? []) as Product[];
+          const items = (products ?? []).filter((p) => p.id !== currentId).slice(0, 6);
+          setRelated(items);
+        }
       } catch {
         setRelated([]);
       } finally {
@@ -96,9 +124,7 @@ export default function ProductPage() {
     const slug = product?.collection?.slug;
     const currentId = product?.id;
 
-    if (slug && typeof currentId === "number") {
-      runRelated(slug, currentId);
-    }
+    if (slug && typeof currentId === "number") runRelated(slug, currentId);
   }, [product?.collection?.slug, product?.id]);
 
   const handleAddToCart = () => {
@@ -119,7 +145,6 @@ export default function ProductPage() {
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!product) return;
 
     if (!username.trim()) {
@@ -159,260 +184,410 @@ export default function ProductPage() {
 
   if (loading) {
     return (
-      <div className="container-fluid section text-center">
-        <div className="text-muted">Loading...</div>
-      </div>
+      <Center minH="70vh">
+        <VStack spacing={4}>
+          <Spinner size="xl" thickness="4px" color="rgba(45,107,255,0.95)" />
+          <Text color="whiteAlpha.700">Loading piece...</Text>
+        </VStack>
+      </Center>
     );
   }
 
   if (error) {
     return (
-      <div className="container-fluid section text-center">
-        <div className="text-danger">{error}</div>
-      </div>
+      <Center minH="70vh">
+        <VStack spacing={3}>
+          <Text color="red.300" fontWeight="800">
+            {error}
+          </Text>
+          <Button onClick={() => navigate(-1)} variant="outline" borderColor="whiteAlpha.300" color="white">
+            Go back
+          </Button>
+        </VStack>
+      </Center>
     );
   }
 
   if (!product) {
     return (
-      <div className="container-fluid section text-center">
-        <div className="text-muted">Product not found</div>
-      </div>
+      <Center minH="70vh">
+        <Text color="whiteAlpha.700">Product not found</Text>
+      </Center>
     );
   }
 
   return (
-    <>
-      <div className="container-fluid section section--alt">
-        <div className="container">
-          {/* Drop link */}
-          {product.collection?.slug && (
-            <div style={{ marginBottom: 16 }}>
-              <Link
-                to={`/drops/${product.collection.slug}`}
-                className="ue-pill ue-link"
-                style={{ display: "inline-flex" }}
+    <Box bg="#0B0F14" minH="100vh" py={{ base: 10, md: 14 }}>
+      <Container maxW="container.xl">
+        {/* Drop link */}
+        {product.collection?.slug && (
+          <HStack mb={6} justify="space-between" flexWrap="wrap" gap={3}>
+            <HStack
+              as={RouterLink}
+              to={`/drops/${product.collection.slug}`}
+              spacing={3}
+              px={4}
+              py={2}
+              borderRadius="full"
+              border="1px solid rgba(255,255,255,0.14)"
+              bg="rgba(255,255,255,0.03)"
+              _hover={{
+                textDecoration: "none",
+                borderColor: "rgba(45,107,255,0.45)",
+                bg: "rgba(45,107,255,0.08)",
+              }}
+              transition="all 0.18s ease"
+            >
+              <Badge
+                bg="rgba(45,107,255,0.18)"
+                border="1px solid rgba(45,107,255,0.35)"
+                color="white"
+                borderRadius="full"
+                px={3}
+                py={1}
+                fontSize="xs"
+                textTransform="uppercase"
+                letterSpacing="0.14em"
               >
-                Drop: {product.collection.title} • {product.collection.season}
-                <i className="bi bi-arrow-right" style={{ marginLeft: 10 }} />
-              </Link>
-            </div>
-          )}
+                Drop
+              </Badge>
+              <HStack mt={3}>
+                <Text color="white" fontWeight="900" noOfLines={1}>
+                  {product.collection.title}
+                </Text>
+                <Text color="whiteAlpha.600" fontSize="sm">
+                  • {product.collection.season}
+                </Text>
+              </HStack>
+            </HStack>
+          </HStack>
+        )}
 
-          <div className="row g-4 align-items-start">
-            {/* Image */}
-            <div className="col-lg-6">
-              <div className="ue-product" style={{ borderRadius: 18 }}>
-                <div className="ue-product-media">
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="card-img-top"
-                    style={{ height: 520 }}
-                    onError={(e) => (e.currentTarget.src = "https://via.placeholder.com/520")}
-                  />
-                </div>
-              </div>
-            </div>
+        {/* Product hero */}
+        <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={{ base: 8, lg: 12 }} alignItems="start">
+          {/* Image */}
+          <Box
+            borderRadius="2xl"
+            overflow="hidden"
+            border="1px solid rgba(255,255,255,0.10)"
+            bg="rgba(255,255,255,0.03)"
+            boxShadow="0 18px 55px rgba(0,0,0,0.65)"
+          >
+            <Box position="relative">
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                w="100%"
+                h={{ base: "420px", md: "560px" }}
+                objectFit="cover"
+                filter="contrast(1.07) saturate(0.95)"
+                onError={(e: any) => (e.currentTarget.src = "https://via.placeholder.com/560")}
+              />
+              <Box
+                position="absolute"
+                inset={0}
+                pointerEvents="none"
+                boxShadow="inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 120px rgba(45,107,255,0.12)"
+              />
+            </Box>
+          </Box>
 
-            {/* Details */}
-            <div className="col-lg-6">
-              <h1 className="hero-title" style={{ fontSize: "clamp(34px, 4vw, 56px)" }}>
-                {product.name.split(" ").slice(0, -1).join(" ")}{" "}
-                <span className="accent">{product.name.split(" ").slice(-1)}</span>
-              </h1>
+          {/* Details */}
+          <VStack align="stretch" spacing={5}>
+            <Box>
+              <Heading
+                fontSize={{ base: "3xl", md: "5xl" }}
+                fontWeight="400"
+                textTransform="uppercase"
+                letterSpacing="0.02em"
+                color="white"
+              >
+                {product.name}
+              </Heading>
 
-              <div className="ue-meta" style={{ marginTop: 10 }}>
-                <span className="ue-price" style={{ fontSize: 20 }}>
+              <HStack mt={3} justify="space-between" flexWrap="wrap" gap={3}>
+                <Text fontSize="2xl" fontWeight="900" color="white">
                   ₦{product.price.toLocaleString()}
-                </span>
+                </Text>
 
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--muted)" }}>
-                  <FaStar style={{ color: "var(--accent)" }} />
-                  {averageRating ? averageRating.toFixed(1) : "—"}
-                  {reviews.length ? ` (${reviews.length})` : ""}
-                </span>
-              </div>
+                <HStack color="whiteAlpha.700" spacing={2}>
+                  <FaStar style={{ color: "rgba(45,107,255,0.95)" }} />
+                  <Text fontWeight="900" color="white">
+                    {averageRating ? averageRating.toFixed(1) : "—"}
+                  </Text>
+                  <Text>{reviews.length ? `(${reviews.length})` : ""}</Text>
+                </HStack>
+              </HStack>
 
-              <p style={{ color: "var(--muted)", marginTop: 16, lineHeight: 1.8 }}>
+              <Text mt={4} color="whiteAlpha.700" lineHeight="tall">
                 {product.description}
-              </p>
+              </Text>
+            </Box>
 
-              <div className="mt-4">
-                <label htmlFor="size-select" className="form-label" style={{ color: "var(--muted)" }}>
-                  Size
-                </label>
+            <Divider borderColor="whiteAlpha.200" />
 
-                <select
-                  id="size-select"
-                  className="ue-select w-100"
-                  value={selectedSize}
-                  onChange={(e) => setSelectedSize(e.target.value)}
-                >
-                  <option value="">Select a size</option>
-                  {product.sizes.map((size) => (
-                    <option key={size} value={size}>
-                      {size}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <FormControl>
+              <FormLabel color="whiteAlpha.700">Size</FormLabel>
+              <Select
+                value={selectedSize}
+                onChange={(e) => setSelectedSize(e.target.value)}
+                bg="rgba(255,255,255,0.03)"
+                borderColor="whiteAlpha.200"
+                _hover={{ borderColor: "rgba(45,107,255,0.55)" }}
+                _focusVisible={{
+                  borderColor: "rgba(45,107,255,0.75)",
+                  boxShadow: "0 0 0 4px rgba(45,107,255,0.18)",
+                }}
+              >
+                <option value="" style={{ color: "#111" }}>
+                  Select a size
+                </option>
+                {product.sizes.map((size) => (
+                  <option key={size} value={size} style={{ color: "#111" }}>
+                    {size}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
 
-              <div className="ue-actions mt-4">
-                <button className="ue-btn" onClick={() => navigate(-1)}>
-                  Back
-                </button>
-                <button className="ue-btn ue-btn-primary" onClick={handleAddToCart}>
-                  Add to Cart <i className="bi bi-cart" style={{ marginLeft: 8 }} />
-                </button>
-              </div>
-            </div>
-          </div>
+            <HStack spacing={3}>
+              <Button
+                size="lg"
+                w="full"
+                borderRadius="xl"
+                bg="rgba(45,107,255,0.95)"
+                color="white"
+                fontWeight="900"
+                _hover={{ bg: "rgba(45,107,255,0.85)", transform: "translateY(-1px)" }}
+                _active={{ transform: "translateY(0px)" }}
+                boxShadow="0 18px 55px rgba(45,107,255,0.22)"
+                onClick={handleAddToCart}
+              >
+                Add to Cart
+              </Button>
 
+              <Button
+                size="lg"
+                w="full"
+                variant="outline"
+                borderRadius="xl"
+                borderColor="whiteAlpha.300"
+                color="white"
+                _hover={{ bg: "whiteAlpha.100" }}
+                onClick={() => navigate("/cart")}
+              >
+                Go to Cart
+              </Button>
+            </HStack>
+
+            <Text color="whiteAlpha.500" fontSize="sm">
+              Limited runs. Built for the streets, finished like luxury.
+            </Text>
+          </VStack>
+        </SimpleGrid>
+
+        {/* Reviews + Form */}
+        <SimpleGrid mt={{ base: 12, md: 14 }} columns={{ base: 1, lg: 2 }} spacing={10} alignItems="start">
           {/* Review form */}
-          <div className="mt-5">
-            <h2 className="section-title" style={{ textAlign: "left" }}>
+          <Box
+            borderRadius="2xl"
+            border="1px solid rgba(255,255,255,0.10)"
+            bg="rgba(255,255,255,0.03)"
+            p={{ base: 5, md: 6 }}
+            boxShadow="0 18px 55px rgba(0,0,0,0.65)"
+          >
+            <Heading fontSize="2xl" fontWeight="900" textTransform="uppercase" letterSpacing="0.02em">
               Leave a Review
-            </h2>
+            </Heading>
+            <Text mt={2} color="whiteAlpha.700" fontSize="sm">
+              Keep it real. Rate the piece and leave a short note.
+            </Text>
 
-            <form onSubmit={handleSubmitReview} style={{ maxWidth: 760 }}>
-              <div className="mb-3">
-                <label htmlFor="username" className="form-label" style={{ color: "var(--muted)" }}>
-                  Username
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  className="form-control"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Your username"
-                />
-              </div>
+            <Divider my={5} borderColor="whiteAlpha.200" />
 
-              <div className="mb-3">
-                <label className="form-label" style={{ color: "var(--muted)" }}>
-                  Rating
-                </label>
-                <div className="d-flex gap-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <FaStar
-                      key={star}
-                      size={22}
-                      color={star <= rating ? "var(--accent)" : "rgba(255,255,255,0.25)"}
-                      style={{ cursor: "pointer" }}
-                      onClick={() => setRating(star)}
-                    />
-                  ))}
-                </div>
-              </div>
+            <Box as="form" onSubmit={handleSubmitReview}>
+              <VStack spacing={4} align="stretch">
+                <FormControl isRequired>
+                  <FormLabel color="whiteAlpha.700">Username</FormLabel>
+                  <Input
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    bg="rgba(255,255,255,0.03)"
+                    borderColor="whiteAlpha.200"
+                    _hover={{ borderColor: "rgba(45,107,255,0.55)" }}
+                    _focusVisible={{
+                      borderColor: "rgba(45,107,255,0.75)",
+                      boxShadow: "0 0 0 4px rgba(45,107,255,0.18)",
+                    }}
+                    placeholder="Your username"
+                  />
+                </FormControl>
 
-              <div className="mb-3">
-                <label htmlFor="comment" className="form-label" style={{ color: "var(--muted)" }}>
-                  Comment
-                </label>
-                <textarea
-                  id="comment"
-                  className="form-control"
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder="Your review"
-                  rows={4}
-                />
-              </div>
+                <Box>
+                  <Text color="whiteAlpha.700" fontWeight="700" mb={2}>
+                    Rating
+                  </Text>
+                  <HStack spacing={2}>
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Box
+                        as="button"
+                        key={s}
+                        type="button"
+                        onClick={() => setRating(s)}
+                        aria-label={`Rate ${s}`}
+                        style={{ lineHeight: 0 }}
+                      >
+                        <FaStar
+                          size={22}
+                          color={s <= rating ? "rgba(45,107,255,0.95)" : "rgba(255,255,255,0.22)"}
+                        />
+                      </Box>
+                    ))}
+                  </HStack>
+                </Box>
 
-              <button className="ue-btn ue-btn-primary" type="submit" disabled={submitting}>
-                {submitting ? "Submitting..." : "Submit Review"}
-              </button>
-            </form>
-          </div>
+                <FormControl>
+                  <FormLabel color="whiteAlpha.700">Comment</FormLabel>
+                  <Textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    bg="rgba(255,255,255,0.03)"
+                    borderColor="whiteAlpha.200"
+                    _hover={{ borderColor: "rgba(45,107,255,0.55)" }}
+                    _focusVisible={{
+                      borderColor: "rgba(45,107,255,0.75)",
+                      boxShadow: "0 0 0 4px rgba(45,107,255,0.18)",
+                    }}
+                    rows={4}
+                    placeholder="Your review"
+                  />
+                </FormControl>
+
+                <Button
+                  type="submit"
+                  isLoading={submitting}
+                  loadingText="Submitting…"
+                  size="lg"
+                  borderRadius="xl"
+                  bg="rgba(45,107,255,0.95)"
+                  color="white"
+                  fontWeight="900"
+                  _hover={{ bg: "rgba(45,107,255,0.85)", transform: "translateY(-1px)" }}
+                  _active={{ transform: "translateY(0px)" }}
+                >
+                  Submit Review
+                </Button>
+              </VStack>
+            </Box>
+          </Box>
 
           {/* Reviews list */}
-          <div className="mt-5">
-            <h2 className="section-title" style={{ textAlign: "left" }}>
-              Reviews
-            </h2>
+          <Box>
+            <HStack justify="space-between" align="end" mb={4}>
+              <Heading fontSize="2xl" fontWeight="900" textTransform="uppercase" letterSpacing="0.02em">
+                Reviews
+              </Heading>
+              <Text color="whiteAlpha.600" fontSize="sm">
+                {reviews.length ? `${reviews.length} total` : "No reviews yet"}
+              </Text>
+            </HStack>
 
-            {reviews.length ? (
-              <div style={{ maxWidth: 760 }}>
-                {reviews.map((review) => (
-                  <div
-                    key={review.id}
-                    className="mb-3"
-                    style={{
-                      padding: 16,
-                      borderRadius: 16,
-                      border: "1px solid rgba(255,255,255,0.10)",
-                      background: "rgba(255,255,255,0.02)",
-                      color: "var(--text)",
-                    }}
+            <VStack spacing={3} align="stretch">
+              {reviews.length ? (
+                reviews.map((r) => (
+                  <Box
+                    key={r.id}
+                    borderRadius="2xl"
+                    border="1px solid rgba(255,255,255,0.10)"
+                    bg="rgba(255,255,255,0.02)"
+                    p={4}
                   >
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                      <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                        <FaStar style={{ color: "var(--accent)" }} />
-                        <span style={{ fontWeight: 800 }}>{review.rating} / 5</span>
-                      </div>
-                      <div style={{ color: "var(--subtle)", fontSize: 13 }}>
-                        {new Date(review.createdAt).toLocaleDateString()}
-                      </div>
-                    </div>
+                    <HStack justify="space-between" align="start" gap={3}>
+                      <HStack spacing={2}>
+                        <FaStar style={{ color: "rgba(45,107,255,0.95)" }} />
+                        <Text fontWeight="900" color="white">
+                          {r.rating} / 5
+                        </Text>
+                      </HStack>
 
-                    <div style={{ marginTop: 10, color: "var(--muted)", lineHeight: 1.7 }}>
-                      {review.comment}
-                    </div>
+                      <Text color="whiteAlpha.500" fontSize="sm">
+                        {new Date(r.createdAt).toLocaleDateString()}
+                      </Text>
+                    </HStack>
 
-                    <div style={{ marginTop: 10, color: "var(--subtle)", fontSize: 13 }}>
-                      Posted by {review.user?.username || "Anonymous"}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted">No reviews yet.</p>
-            )}
-          </div>
-        </div>
-      </div>
+                    <Text mt={3} color="whiteAlpha.700" lineHeight="tall">
+                      {r.comment}
+                    </Text>
 
-      {/* More from this drop */}
-      {product.collection?.slug && (
-        <div className="container-fluid section">
-          <div className="container">
-            <div className="d-flex align-items-end justify-content-between flex-wrap gap-2">
-              <div>
-                <h2 className="section-title" style={{ textAlign: "left", marginBottom: 8 }}>
+                    <Text mt={3} color="whiteAlpha.500" fontSize="sm">
+                      Posted by {r.user?.username || "Anonymous"}
+                    </Text>
+                  </Box>
+                ))
+              ) : (
+                <Box
+                  borderRadius="2xl"
+                  border="1px solid rgba(255,255,255,0.10)"
+                  bg="rgba(255,255,255,0.02)"
+                  p={5}
+                >
+                  <Text color="whiteAlpha.700">No reviews yet. Be the first.</Text>
+                </Box>
+              )}
+            </VStack>
+          </Box>
+        </SimpleGrid>
+
+        {/* More from this drop */}
+        {product.collection?.slug && (
+          <Box mt={{ base: 12, md: 16 }}>
+            <HStack justify="space-between" align="end" flexWrap="wrap" gap={3}>
+              <Box>
+                <Heading fontSize="2xl" fontWeight="900" textTransform="uppercase" letterSpacing="0.02em">
                   More from this drop
-                </h2>
-                <div style={{ color: "var(--muted)" }}>
+                </Heading>
+                <Text mt={1} color="whiteAlpha.700">
                   {product.collection.title} • {product.collection.season}
-                </div>
-              </div>
+                </Text>
+              </Box>
 
-              <Link to={`/drops/${product.collection.slug}`} className="ue-link">
-                View full drop <i className="bi bi-arrow-right" />
-              </Link>
-            </div>
+              <Button
+                as={RouterLink}
+                to={`/drops/${product.collection.slug}`}
+                variant="outline"
+                borderColor="whiteAlpha.300"
+                color="white"
+                _hover={{ bg: "whiteAlpha.100" }}
+              >
+                View full drop
+              </Button>
+            </HStack>
 
-            <div style={{ marginTop: 20 }}>
-              {relatedLoading && <div className="text-muted">Loading more pieces...</div>}
+            <Box mt={6}>
+              {relatedLoading && (
+                <HStack color="whiteAlpha.700">
+                  <Spinner size="sm" color="rgba(45,107,255,0.95)" />
+                  <Text>Loading more pieces…</Text>
+                </HStack>
+              )}
 
               {!relatedLoading && related.length === 0 && (
-                <div className="text-muted">No other pieces in this drop yet.</div>
+                <Text color="whiteAlpha.700">No other pieces in this drop yet.</Text>
               )}
 
               {!relatedLoading && related.length > 0 && (
-                <div className="row g-4">
+                <SimpleGrid mt={2} columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
                   {related.map((p) => (
-                    <div key={p.id} className="col-md-4">
+                    <Box key={p.id}>
                       <ProductCard product={p} />
-                    </div>
+                    </Box>
                   ))}
-                </div>
+                </SimpleGrid>
               )}
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+            </Box>
+          </Box>
+        )}
+      </Container>
+    </Box>
   );
 }

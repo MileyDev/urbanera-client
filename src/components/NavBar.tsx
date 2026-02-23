@@ -1,12 +1,29 @@
 import { Link, useLocation } from "react-router-dom";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import { CartContext } from "../context/CartContext";
-import "./Navbar.css";
+import {
+  Box,
+  Container,
+  HStack,
+  Text,
+  IconButton,
+  Badge,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  VStack,
+  useDisclosure,
+  Divider,
+} from "@chakra-ui/react";
+import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+import { FiShoppingBag, FiBookOpen, FiShoppingCart } from "react-icons/fi";
 
 export default function NavBar() {
   const { cart } = useContext(CartContext);
   const location = useLocation();
-  const [open, setOpen] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const itemCount = useMemo(
     () => cart.reduce((sum, item) => sum + (item.quantity || 0), 0),
@@ -15,105 +32,199 @@ export default function NavBar() {
 
   // Close drawer on route change
   useEffect(() => {
-    setOpen(false);
+    onClose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
-  // Close on ESC
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    if (open) window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open]);
+  const PillLink = ({
+    to,
+    children,
+    right,
+  }: {
+    to: string;
+    children: React.ReactNode;
+    right?: React.ReactNode;
+  }) => (
+    <HStack
+      as={Link}
+      to={to}
+      spacing={2}
+      px={4}
+      py={2}
+      borderRadius="full"
+      border="1px solid rgba(255,255,255,0.14)"
+      bg="rgba(255,255,255,0.03)"
+      color="white"
+      _hover={{
+        textDecoration: "none",
+        transform: "translateY(-1px)",
+        borderColor: "rgba(45,107,255,0.45)",
+        boxShadow: "0 18px 50px rgba(0,0,0,0.55)",
+      }}
+      transition="all 0.18s ease"
+    >
+      <Box>{children}</Box>
+      {right}
+    </HStack>
+  );
 
-  // Prevent background scroll when drawer is open
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [open]);
+  const DrawerLink = ({
+    to,
+    label,
+    icon,
+    right,
+  }: {
+    to: string;
+    label: string;
+    icon: React.ReactNode;
+    right?: React.ReactNode;
+  }) => (
+    <HStack
+      as={Link}
+      to={to}
+      px={3}
+      py={3}
+      borderRadius="xl"
+      border="1px solid rgba(255,255,255,0.10)"
+      bg="rgba(255,255,255,0.03)"
+      color="white"
+      justify="space-between"
+      _hover={{
+        textDecoration: "none",
+        borderColor: "rgba(45,107,255,0.45)",
+        bg: "rgba(45,107,255,0.08)",
+      }}
+      transition="all 0.18s ease"
+    >
+      <HStack spacing={3}>
+        <Box color="rgba(45,107,255,0.95)">{icon}</Box>
+        <Text fontWeight="800" letterSpacing="0.02em">
+          {label}
+        </Text>
+      </HStack>
+      {right}
+    </HStack>
+  );
 
   return (
     <>
-      <nav className="navbar ue-nav">
-        <div className="container d-flex align-items-center justify-content-between py-2">
-          <Link className="navbar-brand fw-bold" to="/">
-            UrbanEra
-          </Link>
+      <Box
+        as="nav"
+        position="sticky"
+        top={0}
+        zIndex={50}
+        bg="rgba(11,15,20,0.75)"
+        backdropFilter="blur(14px)"
+        borderBottom="1px solid rgba(255,255,255,0.08)"
+      >
+        <Container maxW="container.xl" py={3}>
+          <HStack justify="space-between">
+            <Text
+              as={Link}
+              to="/"
+              fontWeight="900"
+              letterSpacing="0.16em"
+              textTransform="uppercase"
+              color="white"
+              _hover={{ textDecoration: "none", color: "rgba(45,107,255,0.95)" }}
+            >
+              UrbanEra
+            </Text>
 
-          {/* Desktop links */}
-          <div className="d-none d-lg-flex align-items-center gap-3">
-            <Link className="ue-link ue-pill" to="/shop">
-              Drops <i className="bi bi-bag"></i>
-            </Link>
+            {/* Desktop */}
+            <HStack display={{ base: "none", lg: "flex" }} spacing={3}>
+              <PillLink to="/drops" right={<FiShoppingBag />}>
+                Drops
+              </PillLink>
 
-            <Link className="ue-link ue-pill" to="/magazine">
-              LookBook <i className="bi bi-book-half"></i>
-            </Link>
+              <PillLink to="/magazine" right={<FiBookOpen />}>
+                LookBook
+              </PillLink>
 
-            <Link className="ue-link ue-pill" to="/cart">
-              Cart <i className="bi bi-cart"></i>
-              {itemCount > 0 && <span className="ue-badge">{itemCount}</span>}
-            </Link>
-          </div>
+              <PillLink
+                to="/cart"
+                right={
+                  <HStack spacing={2}>
+                    <FiShoppingCart />
+                    {itemCount > 0 && (
+                      <Badge
+                        borderRadius="full"
+                        bg="rgba(45,107,255,0.95)"
+                        color="white"
+                        px={2}
+                      >
+                        {itemCount}
+                      </Badge>
+                    )}
+                  </HStack>
+                }
+              >
+                Cart
+              </PillLink>
+            </HStack>
 
-          {/* Mobile drawer button */}
-          <button
-            className="ue-menu-btn d-lg-none"
-            type="button"
-            aria-label="Open menu"
-            aria-expanded={open}
-            onClick={() => setOpen(true)}
-          >
-            <i className="bi bi-list" style={{ fontSize: "1.4rem" }}></i>
-          </button>
-        </div>
-      </nav>
-
-      {/* Overlay */}
-      <div
-        className={`ue-drawer-overlay ${open ? "open" : ""}`}
-        onClick={() => setOpen(false)}
-        aria-hidden={!open}
-      />
+            {/* Mobile */}
+            <HStack display={{ base: "flex", lg: "none" }} spacing={2}>
+              <IconButton
+                aria-label="Open menu"
+                icon={<HamburgerIcon />}
+                onClick={onOpen}
+                variant="ghost"
+                color="white"
+                _hover={{ bg: "whiteAlpha.100" }}
+              />
+            </HStack>
+          </HStack>
+        </Container>
+      </Box>
 
       {/* Drawer */}
-      <aside className={`ue-drawer ${open ? "open" : ""}`} aria-hidden={!open}>
-        <div className="ue-drawer-header">
-          <div style={{ color: "rgba(255,255,255,0.92)", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-            UrbanEra
-          </div>
-          <button
-            className="ue-menu-btn"
-            type="button"
-            aria-label="Close menu"
-            onClick={() => setOpen(false)}
-          >
-            <i className="bi bi-x-lg"></i>
-          </button>
-        </div>
+      <Drawer isOpen={isOpen} onClose={onClose} placement="right" size="xs">
+        <DrawerOverlay />
+        <DrawerContent bg="#0B0F14" borderLeft="1px solid rgba(255,255,255,0.10)">
+          <DrawerHeader>
+            <HStack justify="space-between">
+              <Text
+                fontWeight="900"
+                letterSpacing="0.16em"
+                textTransform="uppercase"
+                color="white"
+              >
+                UrbanEra
+              </Text>
+              <IconButton
+                aria-label="Close menu"
+                icon={<CloseIcon />}
+                onClick={onClose}
+                variant="ghost"
+                color="white"
+                _hover={{ bg: "whiteAlpha.100" }}
+              />
+            </HStack>
+          </DrawerHeader>
 
-        <nav className="ue-drawer-links">
-          <Link className="ue-drawer-link" to="/shop">
-            <span>Shop</span> <i className="bi bi-bag"></i>
-          </Link>
+          <Divider borderColor="whiteAlpha.200" />
 
-          <Link className="ue-drawer-link" to="/magazine">
-            <span>The Urban LookBook</span> <i className="bi bi-book-half"></i>
-          </Link>
-
-          <Link className="ue-drawer-link" to="/cart">
-            <span>
-              Cart {itemCount > 0 && <span className="ue-badge" style={{ marginLeft: 8 }}>{itemCount}</span>}
-            </span>
-            <i className="bi bi-cart"></i>
-          </Link>
-        </nav>
-      </aside>
+          <DrawerBody py={6}>
+            <VStack spacing={3} align="stretch">
+              <DrawerLink to="/drops" label="Drops" icon={<FiShoppingBag />} />
+              <DrawerLink to="/magazine" label="The Urban LookBook" icon={<FiBookOpen />} />
+              <DrawerLink
+                to="/cart"
+                label="Cart"
+                icon={<FiShoppingCart />}
+                right={
+                  itemCount > 0 ? (
+                    <Badge bg="rgba(45,107,255,0.95)" color="white" borderRadius="full" px={2}>
+                      {itemCount}
+                    </Badge>
+                  ) : undefined
+                }
+              />
+            </VStack>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 }

@@ -1,6 +1,6 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
-import Drops from "./pages/Shop";            
+import Drops from "./pages/Drops";          
 import DropDetail from "./pages/DropDetail";
 import Product from "./pages/Product";
 import Cart from "./pages/Cart";
@@ -29,7 +29,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/success" element={<Success />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/magazine" element={<Magazine />} />
+          <Route path="/lookbook" element={<Magazine />} />
 
           <Route path="*" element={<div className="container-fluid section text-center">404 - Page Not Found</div>} />
         </Routes>

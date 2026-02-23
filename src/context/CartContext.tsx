@@ -1,6 +1,5 @@
 import { createContext, useState, useEffect, type ReactNode } from 'react';
 import { type Product } from '../types/Product';
-import { toast } from 'react-toastify';
 
 interface CartItem extends Product {
   quantity: number;
@@ -35,15 +34,6 @@ export default function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = (product: Product & { quantity: number; selectedSize: string }) => {
     if (!product.selectedSize) {
-      toast.error('Please select a size!', {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: 'dark',
-      });
       return;
     }
     setCart((prev) => {
@@ -59,15 +49,6 @@ export default function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...product, quantity: product.quantity, selectedSize: product.selectedSize }];
     });
-    toast.success(`${product.name} (Size: ${product.selectedSize}) added to cart!`, {
-      position: 'top-right',
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: 'dark',
-    });
   };
 
   const removeFromCart = (id: number, selectedSize: string) => {
@@ -75,28 +56,19 @@ export default function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const updateQuantity = (id: number, selectedSize: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(id, selectedSize);
-      return;
-    }
+    const nextQty = Math.max(1, Math.floor(quantity || 1));
+  
     setCart((prev) =>
       prev.map((item) =>
-        item.id === id && item.selectedSize === selectedSize ? { ...item, quantity } : item
+        item.id === id && item.selectedSize === selectedSize
+          ? { ...item, quantity: nextQty }
+          : item
       )
     );
   };
 
   const clearCart = () => {
     setCart([]);
-    toast.success('Cart cleared!', {
-      position: 'top-right',
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: 'dark',
-    });
   };
 
   return (

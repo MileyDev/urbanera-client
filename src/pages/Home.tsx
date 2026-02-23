@@ -1,30 +1,14 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { type Product } from "../types/Product";
-import axios from "axios";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import '../Home.css';
+import FeaturedDrops from "../components/FeaturedDrops";
+
 
 export default function Home() {
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
-    axios.get('https://urbaneraapi.onrender.com/api/products')
-      .then(res => {
-        console.log('Products fetched:', res.data);
-        setFeaturedProducts([...res.data.slice(0, 3)]);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Fetch error:', err);
-        setError('Failed to load featured products.');
-        setLoading(false);
-      });
-
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -37,7 +21,6 @@ export default function Home() {
       observer.observe(el);
     });
 
-    console.log('Slider initialized with react-slick');
     return () => observer.disconnect();
   }, []);
 
@@ -98,10 +81,10 @@ export default function Home() {
 
             <div className="d-flex gap-3 justify-content-center mt-4">
               <Link to="/shop" className="btn-ue btn-ue-primary animate-slide-in">
-                Shop the Drop <i className="bi bi-arrow-right"></i>
+                Explore Drops <i className="bi bi-arrow-right"></i>
               </Link>
 
-              <Link to="/about" className="btn-ue btn-ue-ghost animate-slide-in">
+              <Link to="/lookbook" className="btn-ue btn-ue-ghost animate-slide-in">
                 The Story
               </Link>
             </div>
@@ -109,41 +92,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="container-fluid section section--alt">
-        <h2 className="section-title animate-slide-in">Featured Drops</h2>
-        {loading && <center className="text-center text-muted">Loading products...</center>}
-        {error && <div className="text-center text-danger">{error}</div>}
-        {!loading && !error && featuredProducts.length === 0 && (
-          <div className="text-center text-muted">No products available.</div>
-        )}
-        <div className="row g-4" style={{ color: 'var(--white)' }}>
-          {featuredProducts.map(product => (
-            <div key={product.id} className="col-md-4">
-              <div className="card h-100 shadow-sm">
-                <img
-                  src={product.imageUrl}
-                  className="card-img-top"
-                  alt={product.name}
-                  style={{ height: '250px', objectFit: 'cover' }}
-                  onError={(e) => {
-                    e.currentTarget.src = 'https://via.placeholder.com/250';
-                    console.error(`Failed to load image: ${product.imageUrl}`);
-                  }}
-                />
-                <div className="card-body">
-                  <h5 className="card-title">{product.name}</h5>
-                  <p className="card-text text-muted">{product.description}</p>
-                  <p className="card-text fw-bold">₦{product.price.toLocaleString()}</p>
-                  <Link to={`/product/${product.id}`} className="btn btn-dark">View Details</Link>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="text-center mt-4">
-          <Link to="/shop" className="btn btn-outline-danger animate-slide-in">View All Collections</Link>
-        </div>
-      </div>
+      <FeaturedDrops />
 
       <div className="container-fluid section">
         <div className="row text-center">

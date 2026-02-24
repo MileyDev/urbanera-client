@@ -5,10 +5,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import '../Home.css';
 import FeaturedDrops from "../components/FeaturedDrops";
-import { Box, Text } from "@chakra-ui/react";
-import { motion } from "framer-motion";
-
-const MotionBox = motion.create(Box);
+import { Footer, IntroCard } from "../components/Sections";
 
 
 export default function Home() {
@@ -100,43 +97,8 @@ export default function Home() {
 
 
 
-      <MotionBox
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        shadow="lg"
-      >
-        <Text fontSize="xl" fontWeight="700" color="white" textAlign="center" mt={10}>
-          An Intro
-        </Text>
-        <Text textAlign="center" fontSize="sm" color="whiteAlpha.600" mt={10} mb={16} px={4}>
-          UrbanEra is more than a brand—it's a movement. We blend Lagos' vibrant street culture with global fashion sensibilities to create bold, premium pieces that resonate with the city's energy. Each drop tells a story, crafted with discipline and intent for those who live and breathe the urban lifestyle.
-        </Text>
-      </MotionBox>
-
-      <div className="container-fluid py-5 footer-section">
-        <div className="row text-center">
-          <div className="col-12">
-            <h2 className="mb-4 animate-slide-in" style={{ color: 'black', fontWeight: 700 }}>Join our Members Club</h2>
-            <div className="mx-auto" style={{ maxWidth: '400px' }}>
-              <input
-                type="email"
-                className="form-control mb-3 animate-slide-in"
-                placeholder="Enter your email"
-              />
-              <button className="btn btn-dark btn-lg animate-slide-in">Subscribe</button>
-            </div>
-            <div className="mt-4" style={{ color: '#1a1a1a' }}>
-              <a href="https://wa.me/+2349117666722" className="mx-2 text-muted animate-slide-in">
-                <i className="bi bi-whatsapp" style={{ fontSize: '1.5rem' }}></i>
-              </a>
-              <a href="https://instagram.com/theurban_era" className="mx-2 text-muted animate-slide-in">
-                <i className="bi bi-instagram" style={{ fontSize: '1.5rem' }}></i>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
+      <IntroCard />
+      <Footer />
     </>
   );
 }

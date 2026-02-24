@@ -5,6 +5,10 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import '../Home.css';
 import FeaturedDrops from "../components/FeaturedDrops";
+import { Box, Text } from "@chakra-ui/react";
+import { motion } from "framer-motion";
+
+const MotionBox = motion.create(Box);
 
 
 export default function Home() {
@@ -94,16 +98,21 @@ export default function Home() {
 
       <FeaturedDrops />
 
-      <div className="container-fluid section">
-        <div className="row text-center">
-          <div className="col-12">
-            <h2 className="section-title animate-slide-in">About UrbanEra</h2>
-            <p className="section-lead animate-slide-in">
-              Born from Nigeria’s urban culture—built with discipline, craft, and the energy of the streets.
-            </p>
-          </div>
-        </div>
-      </div>
+
+
+      <MotionBox
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        shadow="lg"
+      >
+        <Text fontSize="xl" fontWeight="700" color="white" textAlign="center" mt={10}>
+          An Intro
+        </Text>
+        <Text textAlign="center" fontSize="sm" color="whiteAlpha.600" mt={10} mb={16} px={4}>
+          UrbanEra is more than a brand—it's a movement. We blend Lagos' vibrant street culture with global fashion sensibilities to create bold, premium pieces that resonate with the city's energy. Each drop tells a story, crafted with discipline and intent for those who live and breathe the urban lifestyle.
+        </Text>
+      </MotionBox>
 
       <div className="container-fluid py-5 footer-section">
         <div className="row text-center">

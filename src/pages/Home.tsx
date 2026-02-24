@@ -5,7 +5,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import '../Home.css';
 import FeaturedDrops from "../components/FeaturedDrops";
-import { Footer, IntroCard } from "../components/Sections";
+import { Footer, IntroCard, MembersClubSection } from "../components/Sections";
 
 
 export default function Home() {
@@ -98,6 +98,7 @@ export default function Home() {
 
 
       <IntroCard />
+      <MembersClubSection />
       <Footer />
     </>
   );

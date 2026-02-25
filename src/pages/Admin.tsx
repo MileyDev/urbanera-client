@@ -1,457 +1,1025 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import { type Product, type Review } from '../types/Product';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import {
+  Box,
+  Button,
+  Center,
+  Checkbox,
+  Container,
+  Divider,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  HStack,
+  IconButton,
+  Input,
+  SimpleGrid,
+  Spinner,
+  Stack,
+  Switch,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Tag,
+  TagLabel,
+  Text,
+  Textarea,
+  useDisclosure,
+  useToast,
+  VStack,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  DrawerFooter,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Badge,
+} from "@chakra-ui/react";
+import { ChevronUpIcon, ChevronDownIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import type { Product, Review } from "../types/Product";
+import type {
+  CollectionAdminDto,
+  UpsertCollectionRequest,
+  AssignProductsToCollectionRequest,
+  SetDropOrderRequest
+} from "../types/CollectionAdmin";
+
+const API = "https://urbaneraapi.onrender.com/api";
+
+const emptyCollection: UpsertCollectionRequest = {
+  slug: "",
+  title: "",
+  season: "",
+  statement: "",
+  story: "",
+  coverImageUrl: "",
+  heroImageUrl: "",
+  accent: "",
+  isPublished: false,
+};
 
 export default function Admin() {
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const toast = useToast();
+
+  const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  // Data
+  const [collections, setCollections] = useState<CollectionAdminDto[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+
+  // Collections form
+  const [colForm, setColForm] = useState<UpsertCollectionRequest>(emptyCollection);
+  const [editingCollectionId, setEditingCollectionId] = useState<number | null>(null);
+
+  // Assign products drawer
+  const assignDrawer = useDisclosure();
+  const [assignCollectionId, setAssignCollectionId] = useState<number | null>(null);
+  const [selectedProductIds, setSelectedProductIds] = useState<number[]>([]);
+  const [clearExistingAssignments, setClearExistingAssignments] = useState(false);
+
+  // Drop order modal
+  const orderModal = useDisclosure();
+  const [orderCollectionId, setOrderCollectionId] = useState<number | null>(null);
+  const [orderItems, setOrderItems] = useState<{ productId: number; name: string }[]>([]);
+
+  // Products CRUD
   const [newProduct, setNewProduct] = useState({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     price: 0,
-    imageUrl: '',
-    sizes: '' as string,
+    imageUrl: "",
+    sizes: "" as string,
   });
   const [editProduct, setEditProduct] = useState<Product | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'products' | 'reviews'>('products');
 
-  useEffect(() => {
-    if (token) {
-      const fetchData = async () => {
-        try {
-          const [productsResponse, reviewsResponse] = await Promise.all([
-            axios.get('https://urbaneraapi.onrender.com/api/products', {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            axios.get('https://urbaneraapi.onrender.com/api/reviews', {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-          ]);
-          setProducts(productsResponse.data);
-          setReviews(reviewsResponse.data);
-        } catch (err) {
-          setError('Failed to load data.');
-          console.error('Fetch error:', err);
-        }
-      };
-      fetchData();
-    }
+  const http = useMemo(() => {
+    const instance = axios.create({ baseURL: API });
+    instance.interceptors.request.use((cfg) => {
+      if (token) cfg.headers.Authorization = `Bearer ${token}`;
+      return cfg;
+    });
+    return instance;
   }, [token]);
 
+  const notify = (title: string, status: "success" | "error" | "info" = "success") => {
+    toast({ title, status, duration: 2500, isClosable: true, position: "bottom-right" });
+  };
+
+  const refreshAll = async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const [colsRes, prodsRes, revsRes] = await Promise.all([
+        http.get<CollectionAdminDto[]>("/admin/collections"),
+        http.get<Product[]>("/products"),
+        http.get<Review[]>("/reviews"),
+      ]);
+
+      setCollections(colsRes.data ?? []);
+      setProducts(prodsRes.data ?? []);
+      setReviews(revsRes.data ?? []);
+      console.log('collections:', colsRes);
+      console.log('products:', prodsRes);
+      console.log('reviews:', revsRes);
+    } catch (e: any) {
+      notify("Failed to load admin data.", "error");
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  // -----------------------
+  // Auth
+  // -----------------------
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://urbaneraapi.onrender.com/api/auth/login', {
-        username,
-        password,
-      });
-      const { token } = response.data;
-      localStorage.setItem('token', token);
-      setToken(token);
-      setUsername('');
-      setPassword('');
-      setError(null);
-      toast.success('Logged in successfully!', { theme: 'dark' });
-    } catch (err) {
-      setError('Invalid username or password.');
-      toast.error('Invalid username or password.', { theme: 'dark' });
+      const res = await axios.post(`${API}/auth/login`, { username, password });
+      const t = res.data?.token;
+      console.log(res);
+      if (!t) throw new Error("No token returned");
+      localStorage.setItem("token", t);
+      setToken(t);
+      setUsername("");
+      setPassword("");
+      notify("Logged in.", "success");
+    } catch {
+      notify("Invalid username or password.", "error");
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     setToken(null);
+    setCollections([]);
     setProducts([]);
     setReviews([]);
-    setError(null);
-    toast.info('Logged out.', { theme: 'dark' });
+    notify("Logged out.", "info");
   };
 
-  const handleAddProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // -----------------------
+  // Collections CRUD
+  // -----------------------
+  const startCreateCollection = () => {
+    setEditingCollectionId(null);
+    setColForm(emptyCollection);
+  };
+
+  const startEditCollection = (c: CollectionAdminDto) => {
+    setEditingCollectionId(c.id);
+    setColForm({
+      slug: c.slug,
+      title: c.title,
+      season: c.season,
+      statement: c.statement,
+      story: c.story,
+      coverImageUrl: c.coverImageUrl,
+      heroImageUrl: c.heroImageUrl,
+      accent: c.accent ?? "",
+      isPublished: c.isPublished,
+    });
+  };
+
+  const saveCollection = async () => {
     try {
-      const product = {
+      const payload: UpsertCollectionRequest = {
+        ...colForm,
+        accent: colForm.accent?.trim() ? colForm.accent.trim() : null,
+      };
+
+      if (editingCollectionId) {
+        await http.put(`/admin/collections/${editingCollectionId}`, payload);
+        notify("Collection updated.", "success");
+      } else {
+        await http.post(`/admin/collections`, payload);
+        notify("Collection created.", "success");
+      }
+
+      setEditingCollectionId(null);
+      setColForm(emptyCollection);
+      await refreshAll();
+    } catch (e: any) {
+      const msg = e?.response?.data?.error || "Failed to save collection.";
+      notify(String(msg), "error");
+    }
+  };
+
+  const deleteCollection = async (id: number) => {
+    try {
+      await http.delete(`/admin/collections/${id}`);
+      notify("Collection deleted.", "success");
+      await refreshAll();
+    } catch (e: any) {
+      const msg = e?.response?.data?.error || "Failed to delete collection.";
+      notify(String(msg), "error");
+    }
+  };
+
+  // -----------------------
+  // Assign Products
+  // -----------------------
+  const openAssignProducts = (collectionId: number) => {
+    setAssignCollectionId(collectionId);
+    setSelectedProductIds([]);
+    setClearExistingAssignments(false);
+    assignDrawer.onOpen();
+  };
+
+  const toggleProductPick = (id: number, checked: boolean) => {
+    setSelectedProductIds((prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)));
+  };
+
+  const assignProducts = async () => {
+    if (!assignCollectionId || selectedProductIds.length === 0) return;
+
+    const payload: AssignProductsToCollectionRequest = {
+      productIds: selectedProductIds,
+      clearExistingCollectionAssignments: clearExistingAssignments,
+    };
+
+    try {
+      await http.post(`/admin/collections/${assignCollectionId}/assign-products`, payload);
+      notify("Products assigned.", "success");
+      assignDrawer.onClose();
+      setAssignCollectionId(null);
+      setSelectedProductIds([]);
+      await refreshAll();
+    } catch (e: any) {
+      const msg = e?.response?.data?.error || "Failed to assign products.";
+      notify(String(msg), "error");
+    }
+  };
+
+  // -----------------------
+  // Drop Order
+  // NOTE: this requires product.collectionId on product list
+  // -----------------------
+  const openDropOrder = (collectionId: number) => {
+    setOrderCollectionId(collectionId);
+
+    const items = (products as any[])
+      .filter((p) => p.collectionId === collectionId)
+      .sort((a, b) => (a.dropOrder ?? 9999) - (b.dropOrder ?? 9999))
+      .map((p) => ({ productId: p.id, name: p.name }));
+
+    setOrderItems(items);
+    orderModal.onOpen();
+  };
+
+  const moveOrder = (idx: number, dir: -1 | 1) => {
+    setOrderItems((prev) => {
+      const next = [...prev];
+      const j = idx + dir;
+      if (j < 0 || j >= next.length) return prev;
+      const tmp = next[idx];
+      next[idx] = next[j];
+      next[j] = tmp;
+      return next;
+    });
+  };
+
+  const saveDropOrder = async () => {
+    if (!orderCollectionId) return;
+
+    const payload: SetDropOrderRequest = {
+      items: orderItems.map((x, i) => ({ productId: x.productId, dropOrder: i + 1 })),
+    };
+
+    try {
+      await http.post(`/admin/collections/${orderCollectionId}/set-drop-order`, payload);
+      notify("Drop order saved.", "success");
+      orderModal.onClose();
+      await refreshAll();
+    } catch (e: any) {
+      const msg = e?.response?.data?.error || "Failed to save drop order.";
+      notify(String(msg), "error");
+    }
+  };
+
+  // -----------------------
+  // Products CRUD
+  // -----------------------
+  const addProduct = async () => {
+    try {
+      const payload = {
         ...newProduct,
         price: Number(newProduct.price),
-        sizes: newProduct.sizes.split(',').map((s) => s.trim()),
+        sizes: newProduct.sizes.split(",").map((s) => s.trim()).filter(Boolean),
       };
-      await axios.post('https://urbaneraapi.onrender.com/api/products', product, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      toast.success('Product added!', { theme: 'dark' });
-      setNewProduct({ name: '', description: '', price: 0, imageUrl: '', sizes: '' });
-      const response = await axios.get('https://urbaneraapi.onrender.com/api/products', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setProducts(response.data);
-    } catch (err) {
-      toast.error('Failed to add product.', { theme: 'dark' });
-      setError('Failed to add product.');
+      await http.post("/products", payload);
+      notify("Product added.", "success");
+      setNewProduct({ name: "", description: "", price: 0, imageUrl: "", sizes: "" });
+      await refreshAll();
+    } catch (e: any) {
+      const msg = e?.response?.data?.error || "Failed to add product.";
+      notify(String(msg), "error");
     }
   };
 
-  const handleEditProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const updateProduct = async () => {
     if (!editProduct) return;
     try {
-      const product = {
-        ...editProduct,
+      const payload = {
+        name: editProduct.name,
+        description: editProduct.description,
         price: Number(editProduct.price),
+        imageUrl: editProduct.imageUrl,
         sizes: editProduct.sizes,
       };
-      await axios.put(`https://urbaneraapi.onrender.com/api/products/${editProduct.id}`, product, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      toast.success('Product updated!', { theme: 'dark' });
+      await http.put(`/products/${editProduct.id}`, payload);
+      notify("Product updated.", "success");
       setEditProduct(null);
-      const response = await axios.get('https://urbaneraapi.onrender.com/api/products', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setProducts(response.data);
-    } catch (err) {
-      toast.error('Failed to update product.', { theme: 'dark' });
-      setError('Failed to update product.');
+      await refreshAll();
+    } catch (e: any) {
+      const msg = e?.response?.data?.error || "Failed to update product.";
+      notify(String(msg), "error");
     }
   };
 
-  const handleDeleteProduct = async (id: number) => {
+  const removeProduct = async (id: number) => {
     try {
-      await axios.delete(`https://urbaneraapi.onrender.com/api/products/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      toast.success('Product deleted!', { theme: 'dark' });
-      setProducts(products.filter(p => p.id !== id));
-    } catch (err) {
-      toast.error('Failed to delete product.', { theme: 'dark' });
-      setError('Failed to delete product.');
+      await http.delete(`/products/${id}`);
+      notify("Product deleted.", "success");
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+    } catch (e: any) {
+      const msg = e?.response?.data?.error || "Failed to delete product.";
+      notify(String(msg), "error");
     }
   };
 
-  const handleDeleteReview = async (id: number) => {
+  // -----------------------
+  // Reviews moderation
+  // -----------------------
+  const removeReview = async (id: number) => {
     try {
-      await axios.delete(`https://urbaneraapi.onrender.com/api/reviews/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      toast.success('Review deleted!', { theme: 'dark' });
-      setReviews(reviews.filter(r => r.id !== id));
-    } catch (err) {
-      toast.error('Failed to delete review.', { theme: 'dark' });
-      setError('Failed to delete review.');
+      await http.delete(`/reviews/${id}`);
+      notify("Review deleted.", "success");
+      setReviews((prev) => prev.filter((r) => r.id !== id));
+    } catch (e: any) {
+      const msg = e?.response?.data?.error || "Failed to delete review.";
+      notify(String(msg), "error");
     }
   };
 
+  // -----------------------
+  // Render
+  // -----------------------
   if (!token) {
     return (
-      <div className="container-fluid full-screen-section">
-        <h1 className="mb-4" style={{ fontWeight: 700, color: 'var(--dark-gold)' }}>Admin Login</h1>
-        {error && <div className="alert alert-danger">{error}</div>}
-        <form onSubmit={handleLogin} className="row justify-content-center">
-          <div className="col-md-6">
-            <div className="mb-3">
-              <label htmlFor="username" className="form-label" style={{ color: 'var(--white)' }}>
-                Username
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="password" className="form-label" style={{ color: 'var(--white)' }}>
-                Password
-              </label>
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
-              />
-            </div>
-            <button
-              type="submit"
-              className="btn btn-dark w-100"
-              style={{ borderColor: 'var(--dark-gold)', color: 'var(--dark-gold)' }}
-            >
-              Login
-            </button>
-          </div>
-        </form>
-      </div>
+      <Center minH="100vh" bg="black" color="white" px={6}>
+        <Box w="full" maxW="420px" p={8} borderRadius="2xl" bg="whiteAlpha.50" border="1px solid" borderColor="whiteAlpha.200">
+          <Heading size="lg" mb={6} letterSpacing="wide" textTransform="uppercase">
+            Admin Login
+          </Heading>
+
+          <form onSubmit={handleLogin}>
+            <Stack spacing={4}>
+              <FormControl isRequired>
+                <FormLabel color="whiteAlpha.700">Username</FormLabel>
+                <Input value={username} onChange={(e) => setUsername(e.target.value)} bg="blackAlpha.400" borderColor="whiteAlpha.200" />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel color="whiteAlpha.700">Password</FormLabel>
+                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} bg="blackAlpha.400" borderColor="whiteAlpha.200" />
+              </FormControl>
+
+              <Button type="submit" colorScheme="yellow" size="lg">
+                Login
+              </Button>
+            </Stack>
+          </form>
+        </Box>
+      </Center>
     );
   }
 
   return (
-    <div className="container-fluid full-screen-section">
-      <h1 className="mb-4" style={{ fontWeight: 700, color: 'var(--dark-gold)' }}>Admin Dashboard</h1>
-      <div className="text-end mb-4">
-        <button
-          className="btn btn-outline-danger"
-          style={{ borderColor: 'var(--dark-gold)', color: 'var(--dark-gold)' }}
-          onClick={handleLogout}
-        >
-          Logout
-        </button>
-      </div>
-      {error && <div className="alert alert-danger mb-3">{error}</div>}
-      <ul className="nav nav-tabs mb-4">
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === 'products' ? 'active' : ''}`}
-            onClick={() => setActiveTab('products')}
-            style={{ color: activeTab === 'products' ? '#B8860B' : '#FFFFFF', background: '#1C2526' }}
-          >
-            Products
-          </button>
-        </li>
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === 'reviews' ? 'active' : ''}`}
-            onClick={() => setActiveTab('reviews')}
-            style={{ color: activeTab === 'reviews' ? '#B8860B' : '#FFFFFF', background: '#1C2526' }}
-          >
-            Reviews
-          </button>
-        </li>
-      </ul>
-      {activeTab === 'products' ? (
-        <>
-          <h2 style={{ color: 'var(--dark-gold)' }}>Add Product</h2>
-          <form onSubmit={handleAddProduct} className="mb-4">
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label htmlFor="name" className="form-label" style={{ color: 'var(--white)' }}>Name</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="name"
-                  value={newProduct.name}
-                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                  required
-                  style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
-                />
-              </div>
-              <div className="col-md-6 mb-3">
-                <label htmlFor="price" className="form-label" style={{ color: 'var(--white)' }}>Price (₦)</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  id="price"
-                  value={newProduct.price}
-                  onChange={(e) => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
-                  required
-                  style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
-                />
-              </div>
-            </div>
-            <div className="mb-3">
-              <label htmlFor="description" className="form-label" style={{ color: 'var(--white)' }}>Description</label>
-              <textarea
-                className="form-control"
-                id="description"
-                value={newProduct.description}
-                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                required
-                style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="imageUrl" className="form-label" style={{ color: 'var(--white)' }}>Image URL</label>
-              <input
-                type="text"
-                className="form-control"
-                id="imageUrl"
-                value={newProduct.imageUrl}
-                onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
-                required
-                style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="sizes" className="form-label" style={{ color: 'var(--white)' }}>Sizes (comma-separated)</label>
-              <input
-                type="text"
-                className="form-control"
-                id="sizes"
-                value={newProduct.sizes}
-                onChange={(e) => setNewProduct({ ...newProduct, sizes: e.target.value })}
-                placeholder="S,M,L"
-                required
-                style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
-              />
-            </div>
-            <button
-              type="submit"
-              className="btn btn-dark"
-              style={{ borderColor: 'var(--dark-gold)', color: 'var(--dark-gold)' }}
-            >
-              Add Product
-            </button>
-          </form>
+    <Box minH="100vh" bg="black" color="white" py={10}>
+      <Container maxW="container.xl">
+        <Flex align="center" justify="space-between" wrap="wrap" gap={3}>
+          <Box>
+            <Heading size="lg" letterSpacing="wide" textTransform="uppercase">
+              UrbanEra Admin
+            </Heading>
+            <Text color="whiteAlpha.700" mt={1}>
+              Collections • Products • Reviews
+            </Text>
+          </Box>
 
-          {editProduct && (
-            <div className="mt-5">
-              <h2 style={{ color: 'var(--dark-gold)' }}>Edit Product</h2>
-              <form onSubmit={handleEditProduct}>
-                <div className="row">
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="editName" className="form-label" style={{ color: 'var(--white)' }}>Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="editName"
-                      value={editProduct.name}
-                      onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })}
-                      required
-                      style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
-                    />
-                  </div>
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="editPrice" className="form-label" style={{ color: 'var(--white)' }}>Price (₦)</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      id="editPrice"
-                      value={editProduct.price}
-                      onChange={(e) => setEditProduct({ ...editProduct, price: Number(e.target.value) })}
-                      required
-                      style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
-                    />
-                  </div>
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="editDescription" className="form-label" style={{ color: 'var(--white)' }}>Description</label>
-                  <textarea
-                    className="form-control"
-                    id="editDescription"
-                    value={editProduct.description}
-                    onChange={(e) => setEditProduct({ ...editProduct, description: e.target.value })}
-                    required
-                    style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="editImageUrl" className="form-label" style={{ color: 'var(--white)' }}>Image URL</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="editImageUrl"
-                    value={editProduct.imageUrl}
-                    onChange={(e) => setEditProduct({ ...editProduct, imageUrl: e.target.value })}
-                    required
-                    style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="editSizes" className="form-label" style={{ color: 'var(--white)' }}>Sizes (comma-separated)</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="editSizes"
-                    value={editProduct.sizes.join(',')}
-                    onChange={(e) => setEditProduct({ ...editProduct, sizes: e.target.value.split(',').map((s) => s.trim()) })}
-                    required
-                    style={{ backgroundColor: '#1C2526', color: 'var(--white)', borderColor: 'var(--dark-gold)' }}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="btn btn-dark me-2"
-                  style={{ borderColor: 'var(--dark-gold)', color: 'var(--dark-gold)' }}
-                >
-                  Save Changes
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-dark"
-                  onClick={() => setEditProduct(null)}
-                  style={{ borderColor: 'var(--dark-gold)', color: 'var(--dark-gold)' }}
-                >
-                  Cancel
-                </button>
-              </form>
-            </div>
-          )}
+          <HStack>
+            <Button variant="outline" borderColor="whiteAlpha.300" onClick={refreshAll} isLoading={loading}>
+              Refresh
+            </Button>
+            <Button colorScheme="yellow" onClick={handleLogout}>
+              Logout
+            </Button>
+          </HStack>
+        </Flex>
 
-          <h2 style={{ color: 'var(--dark-gold)' }}>Products</h2>
-          <div className="row g-4">
-            {products.map(product => (
-              <div key={product.id} className="col-md-4">
-                <div className="card h-100 shadow-sm" style={{ background: '#1a1a1a', color: 'var(--white)' }}>
-                  <img
-                    src={product.imageUrl}
-                    className="card-img-top"
-                    alt={product.name}
-                    style={{ height: '200px', objectFit: 'cover' }}
-                    onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/200')}
-                  />
-                  <div className="card-body">
-                    <h5 className="card-title">{product.name}</h5>
-                    <p className="card-text">{product.description}</p>
-                    <p className="card-text fw-bold">₦{product.price.toLocaleString()}</p>
-                    <p className="card-text">Sizes: {product.sizes.join(', ')}</p>
-                    <button
-                      className="btn btn-dark me-2"
-                      style={{ borderColor: 'var(--dark-gold)', color: 'var(--dark-gold)' }}
-                      onClick={() => setEditProduct(product)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-danger"
-                      onClick={() => handleDeleteProduct(product.id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      ) : (
-        <>
-          <h2 style={{ color: 'var(--dark-gold)' }}>Reviews</h2>
-          {reviews.length ? (
-            <div className="row g-4">
-              {reviews.map(review => (
-                <div key={review.id} className="col-md-4">
-                  <div className="card h-100 shadow-sm" style={{ background: '#1a1a1a', color: 'var(--white)' }}>
-                    <div className="card-body">
-                      <p>Product ID: {review.productId}</p>
-                      <p>Rating: {review.rating} / 5</p>
-                      <p>{review.comment}</p>
-                      <p>Posted by: {review.user?.username || 'Anonymous'}</p>
-                      <p className="text-muted small">Posted on {new Date(review.createdAt).toLocaleDateString()}</p>
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => handleDeleteReview(review.id)}
+        <Divider my={6} borderColor="whiteAlpha.200" />
+
+        <Tabs variant="enclosed" colorScheme="yellow">
+          <TabList>
+            <Tab>Collections</Tab>
+            <Tab>Products</Tab>
+            <Tab>Reviews</Tab>
+          </TabList>
+
+          <TabPanels>
+            {/* ---------------- Collections ---------------- */}
+            <TabPanel px={0}>
+              <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8}>
+                {/* Form */}
+                <Box p={6} borderRadius="2xl" bg="whiteAlpha.50" border="1px solid" borderColor="whiteAlpha.200">
+                  <Flex align="center" justify="space-between" mb={4}>
+                    <Heading size="md" textTransform="uppercase" letterSpacing="wide">
+                      {editingCollectionId ? "Edit Collection" : "Create Collection"}
+                    </Heading>
+                    <Button size="sm" variant="ghost" onClick={startCreateCollection}>
+                      Reset
+                    </Button>
+                  </Flex>
+
+                  <Stack spacing={4}>
+                    <FormControl isRequired>
+                      <FormLabel color="whiteAlpha.700">Slug</FormLabel>
+                      <Input
+                        value={colForm.slug}
+                        onChange={(e) => setColForm((p) => ({ ...p, slug: e.target.value }))}
+                        placeholder="the-first-act-ss26"
+                        bg="blackAlpha.400"
+                        borderColor="whiteAlpha.200"
+                      />
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormLabel color="whiteAlpha.700">Title</FormLabel>
+                      <Input
+                        value={colForm.title}
+                        onChange={(e) => setColForm((p) => ({ ...p, title: e.target.value }))}
+                        placeholder="The First Act"
+                        bg="blackAlpha.400"
+                        borderColor="whiteAlpha.200"
+                      />
+                    </FormControl>
+
+                    <HStack spacing={4}>
+                      <FormControl isRequired>
+                        <FormLabel color="whiteAlpha.700">Season</FormLabel>
+                        <Input
+                          value={colForm.season}
+                          onChange={(e) => setColForm((p) => ({ ...p, season: e.target.value }))}
+                          placeholder="SS26"
+                          bg="blackAlpha.400"
+                          borderColor="whiteAlpha.200"
+                        />
+                      </FormControl>
+
+                      <FormControl>
+                        <FormLabel color="whiteAlpha.700">Accent (optional)</FormLabel>
+                        <Input
+                          value={colForm.accent ?? ""}
+                          onChange={(e) => setColForm((p) => ({ ...p, accent: e.target.value }))}
+                          placeholder="#B8860B"
+                          bg="blackAlpha.400"
+                          borderColor="whiteAlpha.200"
+                        />
+                      </FormControl>
+                    </HStack>
+
+                    <FormControl isRequired>
+                      <FormLabel color="whiteAlpha.700">Statement</FormLabel>
+                      <Input
+                        value={colForm.statement}
+                        onChange={(e) => setColForm((p) => ({ ...p, statement: e.target.value }))}
+                        bg="blackAlpha.400"
+                        borderColor="whiteAlpha.200"
+                      />
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormLabel color="whiteAlpha.700">Story</FormLabel>
+                      <Textarea
+                        value={colForm.story}
+                        onChange={(e) => setColForm((p) => ({ ...p, story: e.target.value }))}
+                        rows={6}
+                        bg="blackAlpha.400"
+                        borderColor="whiteAlpha.200"
+                      />
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormLabel color="whiteAlpha.700">Cover Image URL</FormLabel>
+                      <Input
+                        value={colForm.coverImageUrl}
+                        onChange={(e) => setColForm((p) => ({ ...p, coverImageUrl: e.target.value }))}
+                        bg="blackAlpha.400"
+                        borderColor="whiteAlpha.200"
+                      />
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormLabel color="whiteAlpha.700">Hero Image URL</FormLabel>
+                      <Input
+                        value={colForm.heroImageUrl}
+                        onChange={(e) => setColForm((p) => ({ ...p, heroImageUrl: e.target.value }))}
+                        bg="blackAlpha.400"
+                        borderColor="whiteAlpha.200"
+                      />
+                    </FormControl>
+
+                    <HStack justify="space-between">
+                      <HStack>
+                        <Switch
+                          isChecked={colForm.isPublished}
+                          onChange={(e) => setColForm((p) => ({ ...p, isPublished: e.target.checked }))}
+                          colorScheme="yellow"
+                        />
+                        <Text color="whiteAlpha.700">Published</Text>
+                      </HStack>
+
+                      <Button
+                        colorScheme="yellow"
+                        onClick={saveCollection}
+                        isLoading={loading}
                       >
+                        {editingCollectionId ? "Save Changes" : "Create Collection"}
+                      </Button>
+                    </HStack>
+                  </Stack>
+                </Box>
+
+                {/* List */}
+                <Box>
+                  <Flex align="center" justify="space-between" mb={3}>
+                    <Heading size="md" textTransform="uppercase" letterSpacing="wide">
+                      Collections
+                    </Heading>
+                    {loading && <Spinner size="sm" />}
+                  </Flex>
+
+                  <Stack spacing={4}>
+                    {collections.map((c) => (
+                      <Box
+                        key={c.id}
+                        p={5}
+                        borderRadius="2xl"
+                        bg="whiteAlpha.50"
+                        border="1px solid"
+                        borderColor="whiteAlpha.200"
+                      >
+                        <Flex align="start" justify="space-between" gap={3}>
+                          <Box>
+                            <HStack spacing={2} mb={1}>
+                              <Tag size="sm" variant="subtle" colorScheme="yellow">
+                                <TagLabel>{c.season}</TagLabel>
+                              </Tag>
+                              <Text fontSize="sm" color="whiteAlpha.600">
+                                {c.slug}
+                              </Text>
+                              {c.isPublished ? (
+                                <Badge colorScheme="green">PUBLISHED</Badge>
+                              ) : (
+                                <Badge colorScheme="orange">DRAFT</Badge>
+                              )}
+                            </HStack>
+
+                            <Text fontSize="lg" fontWeight="800">
+                              {c.title}
+                            </Text>
+
+                            <Text mt={2} color="whiteAlpha.700" noOfLines={2}>
+                              {c.statement}
+                            </Text>
+                          </Box>
+
+                          <HStack>
+                            <IconButton
+                              aria-label="Edit"
+                              icon={<EditIcon />}
+                              variant="outline"
+                              borderColor="whiteAlpha.300"
+                              onClick={() => startEditCollection(c)}
+                            />
+                            <IconButton
+                              aria-label="Delete"
+                              icon={<DeleteIcon />}
+                              variant="outline"
+                              borderColor="whiteAlpha.300"
+                              onClick={() => deleteCollection(c.id)}
+                            />
+                          </HStack>
+                        </Flex>
+
+                        <HStack mt={4} spacing={3} wrap="wrap">
+                          <Button size="sm" variant="outline" borderColor="whiteAlpha.300" onClick={() => openAssignProducts(c.id)}>
+                            Assign Products
+                          </Button>
+                          <Button size="sm" variant="outline" borderColor="whiteAlpha.300" onClick={() => openDropOrder(c.id)}>
+                            Drop Order
+                          </Button>
+                        </HStack>
+                      </Box>
+                    ))}
+
+                    {!collections.length && !loading && (
+                      <Text color="whiteAlpha.600">No collections yet.</Text>
+                    )}
+                  </Stack>
+                </Box>
+              </SimpleGrid>
+
+              {/* Assign Products Drawer */}
+              <Drawer isOpen={assignDrawer.isOpen} placement="right" onClose={assignDrawer.onClose} size="md">
+                <DrawerOverlay />
+                <DrawerContent bg="black" color="white">
+                  <DrawerHeader borderBottomWidth="1px" borderColor="whiteAlpha.200">
+                    Assign Products
+                  </DrawerHeader>
+
+                  <DrawerBody>
+                    <VStack align="stretch" spacing={4}>
+                      <Checkbox
+                        isChecked={clearExistingAssignments}
+                        onChange={(e) => setClearExistingAssignments(e.target.checked)}
+                        colorScheme="yellow"
+                      >
+                        Clear existing assignments first
+                      </Checkbox>
+
+                      <Divider borderColor="whiteAlpha.200" />
+
+                      <VStack align="stretch" spacing={2}>
+                        {products.map((p) => {
+                          const checked = selectedProductIds.includes(p.id);
+                          return (
+                            <Flex
+                              key={p.id}
+                              p={3}
+                              borderRadius="xl"
+                              border="1px solid"
+                              borderColor={checked ? "yellow.400" : "whiteAlpha.200"}
+                              bg={checked ? "yellow.500Alpha" : "whiteAlpha.50"}
+                              align="center"
+                              justify="space-between"
+                              gap={3}
+                            >
+                              <Box>
+                                <Text fontWeight="800">{p.name}</Text>
+                                <Text fontSize="sm" color="whiteAlpha.600">
+                                  ₦{p.price.toLocaleString()}
+                                </Text>
+                              </Box>
+
+                              <Checkbox
+                                isChecked={checked}
+                                onChange={(e) => toggleProductPick(p.id, e.target.checked)}
+                                colorScheme="yellow"
+                              />
+                            </Flex>
+                          );
+                        })}
+                      </VStack>
+                    </VStack>
+                  </DrawerBody>
+
+                  <DrawerFooter borderTopWidth="1px" borderColor="whiteAlpha.200">
+                    <HStack w="full" justify="space-between">
+                      <Button variant="outline" borderColor="whiteAlpha.300" onClick={assignDrawer.onClose}>
+                        Close
+                      </Button>
+                      <Button
+                        colorScheme="yellow"
+                        onClick={assignProducts}
+                        isDisabled={selectedProductIds.length === 0}
+                      >
+                        Assign ({selectedProductIds.length})
+                      </Button>
+                    </HStack>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+
+              {/* Drop Order Modal */}
+              <Modal isOpen={orderModal.isOpen} onClose={orderModal.onClose} size="lg">
+                <ModalOverlay />
+                <ModalContent bg="black" color="white" border="1px solid" borderColor="whiteAlpha.200">
+                  <ModalHeader>Drop Order</ModalHeader>
+                  <ModalBody>
+                    {orderItems.length === 0 ? (
+                      <Text color="whiteAlpha.600">
+                        No products assigned to this collection yet.
+                      </Text>
+                    ) : (
+                      <Stack spacing={2}>
+                        {orderItems.map((x, idx) => (
+                          <Flex
+                            key={x.productId}
+                            p={3}
+                            borderRadius="xl"
+                            border="1px solid"
+                            borderColor="whiteAlpha.200"
+                            align="center"
+                            justify="space-between"
+                          >
+                            <HStack spacing={3}>
+                              <Tag colorScheme="yellow" variant="subtle">
+                                <TagLabel>{idx + 1}</TagLabel>
+                              </Tag>
+                              <Text fontWeight="800">{x.name}</Text>
+                            </HStack>
+
+                            <HStack>
+                              <IconButton
+                                aria-label="Up"
+                                icon={<ChevronUpIcon />}
+                                variant="outline"
+                                borderColor="whiteAlpha.300"
+                                onClick={() => moveOrder(idx, -1)}
+                                isDisabled={idx === 0}
+                              />
+                              <IconButton
+                                aria-label="Down"
+                                icon={<ChevronDownIcon />}
+                                variant="outline"
+                                borderColor="whiteAlpha.300"
+                                onClick={() => moveOrder(idx, 1)}
+                                isDisabled={idx === orderItems.length - 1}
+                              />
+                            </HStack>
+                          </Flex>
+                        ))}
+                      </Stack>
+                    )}
+                  </ModalBody>
+
+                  <ModalFooter>
+                    <HStack w="full" justify="space-between">
+                      <Button variant="outline" borderColor="whiteAlpha.300" onClick={orderModal.onClose}>
+                        Close
+                      </Button>
+                      <Button colorScheme="yellow" onClick={saveDropOrder} isDisabled={orderItems.length === 0}>
+                        Save Order
+                      </Button>
+                    </HStack>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
+            </TabPanel>
+
+            {/* ---------------- Products ---------------- */}
+            <TabPanel px={0}>
+              <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8}>
+                {/* Create product */}
+                <Box p={6} borderRadius="2xl" bg="whiteAlpha.50" border="1px solid" borderColor="whiteAlpha.200">
+                  <Heading size="md" textTransform="uppercase" letterSpacing="wide" mb={4}>
+                    Add Product
+                  </Heading>
+
+                  <Stack spacing={4}>
+                    <FormControl isRequired>
+                      <FormLabel color="whiteAlpha.700">Name</FormLabel>
+                      <Input
+                        value={newProduct.name}
+                        onChange={(e) => setNewProduct((p) => ({ ...p, name: e.target.value }))}
+                        bg="blackAlpha.400"
+                        borderColor="whiteAlpha.200"
+                      />
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormLabel color="whiteAlpha.700">Price (₦)</FormLabel>
+                      <Input
+                        type="number"
+                        value={newProduct.price}
+                        onChange={(e) => setNewProduct((p) => ({ ...p, price: Number(e.target.value) }))}
+                        bg="blackAlpha.400"
+                        borderColor="whiteAlpha.200"
+                      />
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormLabel color="whiteAlpha.700">Description</FormLabel>
+                      <Textarea
+                        value={newProduct.description}
+                        onChange={(e) => setNewProduct((p) => ({ ...p, description: e.target.value }))}
+                        bg="blackAlpha.400"
+                        borderColor="whiteAlpha.200"
+                      />
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormLabel color="whiteAlpha.700">Image URL</FormLabel>
+                      <Input
+                        value={newProduct.imageUrl}
+                        onChange={(e) => setNewProduct((p) => ({ ...p, imageUrl: e.target.value }))}
+                        bg="blackAlpha.400"
+                        borderColor="whiteAlpha.200"
+                      />
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <FormLabel color="whiteAlpha.700">Sizes (comma)</FormLabel>
+                      <Input
+                        value={newProduct.sizes}
+                        onChange={(e) => setNewProduct((p) => ({ ...p, sizes: e.target.value }))}
+                        placeholder="S,M,L,XL"
+                        bg="blackAlpha.400"
+                        borderColor="whiteAlpha.200"
+                      />
+                    </FormControl>
+
+                    <Button colorScheme="yellow" onClick={addProduct}>
+                      Add Product
+                    </Button>
+                  </Stack>
+                </Box>
+
+                {/* Edit product */}
+                <Box p={6} borderRadius="2xl" bg="whiteAlpha.50" border="1px solid" borderColor="whiteAlpha.200">
+                  <Heading size="md" textTransform="uppercase" letterSpacing="wide" mb={4}>
+                    Edit Product
+                  </Heading>
+
+                  {!editProduct ? (
+                    <Text color="whiteAlpha.600">Pick a product from the list to edit.</Text>
+                  ) : (
+                    <Stack spacing={4}>
+                      <FormControl isRequired>
+                        <FormLabel color="whiteAlpha.700">Name</FormLabel>
+                        <Input
+                          value={editProduct.name}
+                          onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })}
+                          bg="blackAlpha.400"
+                          borderColor="whiteAlpha.200"
+                        />
+                      </FormControl>
+
+                      <FormControl isRequired>
+                        <FormLabel color="whiteAlpha.700">Price</FormLabel>
+                        <Input
+                          type="number"
+                          value={editProduct.price}
+                          onChange={(e) => setEditProduct({ ...editProduct, price: Number(e.target.value) })}
+                          bg="blackAlpha.400"
+                          borderColor="whiteAlpha.200"
+                        />
+                      </FormControl>
+
+                      <FormControl isRequired>
+                        <FormLabel color="whiteAlpha.700">Description</FormLabel>
+                        <Textarea
+                          value={editProduct.description}
+                          onChange={(e) => setEditProduct({ ...editProduct, description: e.target.value })}
+                          bg="blackAlpha.400"
+                          borderColor="whiteAlpha.200"
+                        />
+                      </FormControl>
+
+                      <FormControl isRequired>
+                        <FormLabel color="whiteAlpha.700">Image URL</FormLabel>
+                        <Input
+                          value={editProduct.imageUrl}
+                          onChange={(e) => setEditProduct({ ...editProduct, imageUrl: e.target.value })}
+                          bg="blackAlpha.400"
+                          borderColor="whiteAlpha.200"
+                        />
+                      </FormControl>
+
+                      <FormControl isRequired>
+                        <FormLabel color="whiteAlpha.700">Sizes</FormLabel>
+                        <Input
+                          value={editProduct.sizes.join(",")}
+                          onChange={(e) =>
+                            setEditProduct({
+                              ...editProduct,
+                              sizes: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                            })
+                          }
+                          bg="blackAlpha.400"
+                          borderColor="whiteAlpha.200"
+                        />
+                      </FormControl>
+
+                      <HStack>
+                        <Button colorScheme="yellow" onClick={updateProduct}>
+                          Save
+                        </Button>
+                        <Button variant="outline" borderColor="whiteAlpha.300" onClick={() => setEditProduct(null)}>
+                          Cancel
+                        </Button>
+                      </HStack>
+                    </Stack>
+                  )}
+                </Box>
+              </SimpleGrid>
+
+              <Divider my={8} borderColor="whiteAlpha.200" />
+
+              <Heading size="md" textTransform="uppercase" letterSpacing="wide" mb={4}>
+                Products
+              </Heading>
+
+              {loading && <Spinner />}
+
+              <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={4}>
+                {products.map((p) => (
+                  <Box
+                    key={p.id}
+                    p={5}
+                    borderRadius="2xl"
+                    bg="whiteAlpha.50"
+                    border="1px solid"
+                    borderColor="whiteAlpha.200"
+                  >
+                    <Text fontWeight="900">{p.name}</Text>
+                    <Text color="whiteAlpha.700" mt={1} noOfLines={2}>
+                      {p.description}
+                    </Text>
+                    <Text mt={2} fontWeight="800">
+                      ₦{p.price.toLocaleString()}
+                    </Text>
+                    <Text mt={1} color="whiteAlpha.600" fontSize="sm">
+                      Sizes: {p.sizes.join(", ")}
+                    </Text>
+
+                    <HStack mt={4}>
+                      <Button size="sm" variant="outline" borderColor="whiteAlpha.300" onClick={() => setEditProduct(p)}>
+                        Edit
+                      </Button>
+                      <Button size="sm" variant="outline" borderColor="whiteAlpha.300" onClick={() => removeProduct(p.id)}>
                         Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted">No reviews yet.</p>
-          )}
-        </>
-      )}
-    </div>
+                      </Button>
+                    </HStack>
+                  </Box>
+                ))}
+              </SimpleGrid>
+
+              {!products.length && !loading && <Text color="whiteAlpha.600">No products yet.</Text>}
+            </TabPanel>
+
+            {/* ---------------- Reviews ---------------- */}
+            <TabPanel px={0}>
+              <Heading size="md" textTransform="uppercase" letterSpacing="wide" mb={4}>
+                Reviews
+              </Heading>
+
+              {loading && <Spinner />}
+
+              <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={4}>
+                {reviews.map((r) => (
+                  <Box
+                    key={r.id}
+                    p={5}
+                    borderRadius="2xl"
+                    bg="whiteAlpha.50"
+                    border="1px solid"
+                    borderColor="whiteAlpha.200"
+                  >
+                    <Text fontWeight="900">Product ID: {r.productId}</Text>
+                    <Text mt={2} color="whiteAlpha.700">
+                      Rating: <b>{r.rating}/5</b>
+                    </Text>
+                    <Text mt={2} color="whiteAlpha.700" noOfLines={4}>
+                      {r.comment}
+                    </Text>
+                    <Text mt={2} color="whiteAlpha.600" fontSize="sm">
+                      By {r.user?.username || "Anonymous"} • {new Date(r.createdAt).toLocaleDateString()}
+                    </Text>
+
+                    <Button mt={4} size="sm" variant="outline" borderColor="whiteAlpha.300" onClick={() => removeReview(r.id)}>
+                      Delete
+                    </Button>
+                  </Box>
+                ))}
+              </SimpleGrid>
+
+              {!reviews.length && !loading && <Text color="whiteAlpha.600">No reviews yet.</Text>}
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      </Container>
+    </Box>
   );
 }

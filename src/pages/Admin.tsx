@@ -52,6 +52,7 @@ import type {
   AssignProductsToCollectionRequest,
   SetDropOrderRequest
 } from "../types/CollectionAdmin";
+import { AdminShootsSection } from "../components/ShootsSection";
 
 const API = "https://urbaneraapi.onrender.com/api";
 
@@ -443,6 +444,7 @@ export default function Admin() {
           <TabList>
             <Tab>Collections</Tab>
             <Tab>Products</Tab>
+            <Tab>Shoots</Tab>
             <Tab>Reviews</Tab>
           </TabList>
 
@@ -977,6 +979,11 @@ export default function Admin() {
               </SimpleGrid>
 
               {!products.length && !loading && <Text color="whiteAlpha.600">No products yet.</Text>}
+            </TabPanel>
+
+            {/* ----------Shoots Section---------- */}
+            <TabPanel px={0}>
+              <AdminShootsSection http={http} />
             </TabPanel>
 
             {/* ---------------- Reviews ---------------- */}

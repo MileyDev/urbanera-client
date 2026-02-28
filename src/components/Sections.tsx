@@ -90,7 +90,7 @@ import {
                       spacing={3}
                     >
                       <Icon as={x.icon} color="rgba(45,107,255,0.95)" />
-                      <Text color="whiteAlpha.800" fontWeight="800" fontSize="sm">
+                      <Text color="whiteAlpha.800" fontWeight="800" mt={3} fontSize="sm">
                         {x.label}
                       </Text>
                     </HStack>
@@ -225,7 +225,7 @@ import {
                         _hover={{ borderColor: "rgba(45,107,255,0.45)", bg: "rgba(45,107,255,0.08)" }}
                       >
                         <Icon as={FaWhatsapp} color="rgba(45,107,255,0.95)" />
-                        <Text color="whiteAlpha.800" fontWeight="800" fontSize="sm">
+                        <Text color="whiteAlpha.800" fontWeight="800" mt={2} fontSize="sm">
                           WhatsApp
                         </Text>
                       </HStack>
@@ -241,7 +241,7 @@ import {
                         _hover={{ borderColor: "rgba(45,107,255,0.45)", bg: "rgba(45,107,255,0.08)" }}
                       >
                         <Icon as={FaInstagram} color="rgba(45,107,255,0.95)" />
-                        <Text color="whiteAlpha.800" fontWeight="800" fontSize="sm">
+                        <Text color="whiteAlpha.800" fontWeight="800" mt={2} fontSize="sm">
                           Instagram
                         </Text>
                       </HStack>

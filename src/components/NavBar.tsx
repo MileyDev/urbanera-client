@@ -137,7 +137,7 @@ export default function NavBar() {
                 Drops
               </PillLink>
 
-              <PillLink to="/magazine" right={<FiBookOpen />}>
+              <PillLink to="/lookbook" right={<FiBookOpen />}>
                 LookBook
               </PillLink>
 
@@ -208,7 +208,7 @@ export default function NavBar() {
           <DrawerBody py={6}>
             <VStack spacing={3} align="stretch">
               <DrawerLink to="/drops" label="Drops" icon={<FiShoppingBag />} />
-              <DrawerLink to="/magazine" label="The Urban LookBook" icon={<FiBookOpen />} />
+              <DrawerLink to="/lookbook" label="The Urban LookBook" icon={<FiBookOpen />} />
               <DrawerLink
                 to="/cart"
                 label="Cart"

@@ -414,32 +414,6 @@ export default function LookbookStories() {
               </MotionBox>
             </AnimatePresence>
           </Box>
-
-          {/* Mobile hint */}
-          {isMobile && (
-            <Flex
-              position="absolute"
-              bottom={3}
-              left={3}
-              right={3}
-              justify="center"
-              zIndex={6}
-              pointerEvents="none"
-            >
-              <Box
-                px={3}
-                py={2}
-                borderRadius="xl"
-                bg="blackAlpha.500"
-                color="whiteAlpha.900"
-                fontSize="xs"
-                border="1px solid"
-                borderColor="whiteAlpha.200"
-              >
-                Tap left/right to navigate • Hold to pause
-              </Box>
-            </Flex>
-          )}
         </Box>
 
         {/* Thumbnail rail (optional, but “production” nice) */}
@@ -447,8 +421,8 @@ export default function LookbookStories() {
           {shoots.map((s, i) => (
             <Box
               key={s.id}
-              minW={{ base: "120px", md: "140px" }}
-              h={{ base: "70px", md: "80px" }}
+              minW={{ base: "100px", md: "120px" }}
+              h={{ base: "60px", md: "70px" }}
               borderRadius="xl"
               overflow="hidden"
               border="1px solid"

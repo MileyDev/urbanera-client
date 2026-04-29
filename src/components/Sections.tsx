@@ -148,7 +148,7 @@ function MembersClubSection() {
 
 
     try {
-      const response = await fetch('/api/membership/signup', {
+      const response = await fetch('https://urbaneraapi.onrender.com/api/membership/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

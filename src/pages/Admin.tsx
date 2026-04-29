@@ -157,7 +157,6 @@ export default function Admin() {
     try {
       const res = await axios.post(`${API}/auth/login`, { username, password });
       const t = res.data?.token;
-      console.log(res);
       if (!t) throw new Error("No token returned");
       localStorage.setItem("token", t);
       setToken(t);

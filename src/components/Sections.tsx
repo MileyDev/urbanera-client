@@ -13,6 +13,7 @@ import {
   Icon,
   useToast,
 } from "@chakra-ui/react";
+import axios from "axios";
 import { useState } from "react";
 import { FaInstagram, FaWhatsapp, FaBolt, FaCrown, FaGem } from "react-icons/fa";
 import { Link as RouterLink } from "react-router-dom";
@@ -148,18 +149,11 @@ function MembersClubSection() {
 
 
     try {
-      const response = await fetch('https://urbaneraapi.onrender.com/api/membership/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email,
-          firstName: fullName,
-          lastName: '',
-        }),
+      await axios.post('https://urbaneraapi.onrender.com/api/membership/signup', {
+        email: email,
+        firstName: fullName,
+        lastName: '',
       });
-
-      if (!response.ok) throw new Error('Signup failed');
-
       toast({
         title: "Subscribed!",
         description: "Welcome to UrbanEra.",

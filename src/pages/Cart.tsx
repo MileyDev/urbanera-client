@@ -21,6 +21,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { FaTrash, FaPlus, FaMinus } from "react-icons/fa";
+import { getPrimaryProductImage } from "../utils/productImages";
 
 interface DeliveryDetails {
   firstName: string;
@@ -218,7 +219,7 @@ export default function Cart() {
                   <HStack align="stretch" spacing={0}>
                     <Box w={{ base: "120px", md: "160px" }} flexShrink={0} position="relative">
                       <Image
-                        src={item.imageUrl}
+                        src={getPrimaryProductImage(item.imageUrl, "https://via.placeholder.com/250")}
                         alt={item.name}
                         w="100%"
                         h="100%"

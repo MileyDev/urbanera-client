@@ -16,6 +16,7 @@ import { motion } from "framer-motion";
 import { FaStar } from "react-icons/fa";
 import { CartContext } from "../context/CartContext";
 import type { Product } from "../types/Product";
+import { getPrimaryProductImage } from "../utils/productImages";
 
 const MotionBox = motion(Box);
 
@@ -25,6 +26,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const toast = useToast();
 
   const [selectedSize, setSelectedSize] = useState<string>("");
+  const primaryImage = getPrimaryProductImage(product.imageUrl, "https://via.placeholder.com/280");
 
   const ratingText = useMemo(() => {
     if (typeof product.ratingAvg === "number") return product.ratingAvg.toFixed(1);
@@ -79,7 +81,7 @@ export default function ProductCard({ product }: { product: Product }) {
         >
           <HStack spacing={4} align="start">
             <Image
-              src={product.imageUrl}
+              src={primaryImage}
               alt={product.name}
               boxSize="70px"
               borderRadius="xl"
@@ -119,7 +121,7 @@ export default function ProductCard({ product }: { product: Product }) {
       {/* Media */}
       <Box position="relative">
         <Image
-          src={product.imageUrl}
+          src={primaryImage}
           alt={product.name}
           w="100%"
           h="280px"

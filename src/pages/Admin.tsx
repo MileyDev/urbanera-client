@@ -53,6 +53,7 @@ import type {
   SetDropOrderRequest
 } from "../types/CollectionAdmin";
 import { AdminShootsSection } from "../components/ShootsSection";
+import { normalizeProductImages, parseProductImageInput } from "../utils/productImages";
 
 const API = "https://urbaneraapi.onrender.com/api";
 
@@ -106,6 +107,7 @@ export default function Admin() {
     sizes: "" as string,
   });
   const [editProduct, setEditProduct] = useState<Product | null>(null);
+  const [editImageUrlInput, setEditImageUrlInput] = useState("");
 
   const http = useMemo(() => {
     const instance = axios.create({ baseURL: API });
@@ -324,6 +326,7 @@ export default function Admin() {
       const payload = {
         ...newProduct,
         price: Number(newProduct.price),
+        imageUrl: parseProductImageInput(newProduct.imageUrl),
         sizes: newProduct.sizes.split(",").map((s) => s.trim()).filter(Boolean),
       };
       await http.post("/products", payload);
@@ -343,12 +346,13 @@ export default function Admin() {
         name: editProduct.name,
         description: editProduct.description,
         price: Number(editProduct.price),
-        imageUrl: editProduct.imageUrl,
+        imageUrl: parseProductImageInput(editImageUrlInput),
         sizes: editProduct.sizes,
       };
       await http.put(`/products/${editProduct.id}`, payload);
       notify("Product updated.", "success");
       setEditProduct(null);
+      setEditImageUrlInput("");
       await refreshAll();
     } catch (e: any) {
       const msg = e?.response?.data?.error || "Failed to update product.";
@@ -365,6 +369,11 @@ export default function Admin() {
       const msg = e?.response?.data?.error || "Failed to delete product.";
       notify(String(msg), "error");
     }
+  };
+
+  const startEditProduct = (product: Product) => {
+    setEditProduct(product);
+    setEditImageUrlInput(normalizeProductImages(product.imageUrl).join("\n"));
   };
 
   // -----------------------
@@ -831,10 +840,11 @@ export default function Admin() {
                     </FormControl>
 
                     <FormControl isRequired>
-                      <FormLabel color="whiteAlpha.700">Image URL</FormLabel>
-                      <Input
+                      <FormLabel color="whiteAlpha.700">Image URLs</FormLabel>
+                      <Textarea
                         value={newProduct.imageUrl}
                         onChange={(e) => setNewProduct((p) => ({ ...p, imageUrl: e.target.value }))}
+                        placeholder="One or multiple URLs, separated by commas or new lines"
                         bg="blackAlpha.400"
                         borderColor="whiteAlpha.200"
                       />
@@ -899,10 +909,11 @@ export default function Admin() {
                       </FormControl>
 
                       <FormControl isRequired>
-                        <FormLabel color="whiteAlpha.700">Image URL</FormLabel>
-                        <Input
-                          value={editProduct.imageUrl}
-                          onChange={(e) => setEditProduct({ ...editProduct, imageUrl: e.target.value })}
+                        <FormLabel color="whiteAlpha.700">Image URLs</FormLabel>
+                        <Textarea
+                          value={editImageUrlInput}
+                          onChange={(e) => setEditImageUrlInput(e.target.value)}
+                          placeholder="One or multiple URLs, separated by commas or new lines"
                           bg="blackAlpha.400"
                           borderColor="whiteAlpha.200"
                         />
@@ -927,7 +938,14 @@ export default function Admin() {
                         <Button colorScheme="yellow" onClick={updateProduct}>
                           Save
                         </Button>
-                        <Button variant="outline" borderColor="whiteAlpha.300" onClick={() => setEditProduct(null)}>
+                        <Button
+                          variant="outline"
+                          borderColor="whiteAlpha.300"
+                          onClick={() => {
+                            setEditProduct(null);
+                            setEditImageUrlInput("");
+                          }}
+                        >
                           Cancel
                         </Button>
                       </HStack>
@@ -964,9 +982,12 @@ export default function Admin() {
                     <Text mt={1} color="whiteAlpha.600" fontSize="sm">
                       Sizes: {p.sizes.join(", ")}
                     </Text>
+                    <Text mt={1} color="whiteAlpha.600" fontSize="sm">
+                      Images: {normalizeProductImages(p.imageUrl).length}
+                    </Text>
 
                     <HStack mt={4}>
-                      <Button size="sm" variant="outline" borderColor="whiteAlpha.300" onClick={() => setEditProduct(p)}>
+                      <Button size="sm" variant="outline" borderColor="whiteAlpha.300" onClick={() => startEditProduct(p)}>
                         Edit
                       </Button>
                       <Button size="sm" variant="outline" borderColor="whiteAlpha.300" onClick={() => removeProduct(p.id)}>

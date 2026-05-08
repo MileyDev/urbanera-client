@@ -6,6 +6,7 @@ import { CartContext } from "../context/CartContext";
 import { toast } from "react-toastify";
 import ProductCard from "../components/ProductCard";
 import { FaStar } from "react-icons/fa";
+import { getPrimaryProductImage, normalizeProductImages } from "../utils/productImages";
 
 import {
   Box,
@@ -51,6 +52,7 @@ export default function ProductPage() {
   // More from this drop
   const [related, setRelated] = useState<Product[]>([]);
   const [relatedLoading, setRelatedLoading] = useState(false);
+  const [activeImage, setActiveImage] = useState<string>("");
 
   const averageRating = useMemo(() => {
     if (!reviews.length) return null;
@@ -72,6 +74,7 @@ export default function ProductPage() {
         setSelectedSize("");
         setRelated([]);
         setReviews([]);
+        setActiveImage("");
 
         const [productRes, reviewsRes] = await Promise.all([
           axios.get<Product>(`${API}/products/${id}`),
@@ -79,6 +82,7 @@ export default function ProductPage() {
         ]);
 
         setProduct(productRes.data);
+        setActiveImage(getPrimaryProductImage(productRes.data.imageUrl));
         setReviews(reviewsRes.data ?? []);
       } catch {
         setError("Failed to load product or reviews.");
@@ -216,6 +220,9 @@ export default function ProductPage() {
     );
   }
 
+  const productImages = normalizeProductImages(product.imageUrl);
+  const displayImage = activeImage || getPrimaryProductImage(product.imageUrl);
+
   return (
     <Box bg="#0B0F14" minH="100vh" py={{ base: 10, md: 14 }}>
       <Container maxW="container.xl">
@@ -275,7 +282,7 @@ export default function ProductPage() {
           >
             <Box position="relative">
               <Image
-                src={product.imageUrl}
+                src={displayImage}
                 alt={product.name}
                 w="100%"
                 h={{ base: "420px", md: "560px" }}
@@ -290,6 +297,31 @@ export default function ProductPage() {
                 boxShadow="inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 120px rgba(45,107,255,0.12)"
               />
             </Box>
+            {productImages.length > 1 && (
+              <SimpleGrid columns={{ base: 4, md: Math.min(productImages.length, 5) }} spacing={3} p={4}>
+                {productImages.map((image, index) => (
+                  <Box
+                    key={`${product.id}-image-${index}`}
+                    as="button"
+                    type="button"
+                    onClick={() => setActiveImage(image)}
+                    borderRadius="xl"
+                    overflow="hidden"
+                    border={displayImage === image ? "1px solid rgba(45,107,255,0.95)" : "1px solid rgba(255,255,255,0.12)"}
+                    bg="rgba(255,255,255,0.02)"
+                  >
+                    <Image
+                      src={image}
+                      alt={`${product.name} view ${index + 1}`}
+                      w="100%"
+                      h="88px"
+                      objectFit="cover"
+                      onError={(e: any) => (e.currentTarget.src = "https://via.placeholder.com/140")}
+                    />
+                  </Box>
+                ))}
+              </SimpleGrid>
+            )}
           </Box>
 
           {/* Details */}

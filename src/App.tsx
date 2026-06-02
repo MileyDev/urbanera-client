@@ -7,6 +7,7 @@ import Cart from "./pages/Cart";
 import Admin from "./pages/Admin";
 import Success from "./pages/Success";
 import LookbookStories from "./pages/Shoots";
+import SupportPrivacy from "./pages/SupportPrivacy";
 import CartProvider from "./context/CartContext";
 import NavBar from "./components/NavBar";
 import { ToastContainer } from "react-toastify";
@@ -30,6 +31,8 @@ function App() {
           <Route path="/success" element={<Success />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/lookbook" element={<LookbookStories />} />
+          <Route path="/support" element={<SupportPrivacy />} />
+          <Route path="/privacy" element={<SupportPrivacy />} />
 
           <Route path="*" element={<div className="container-fluid section text-center">404 - Page Not Found</div>} />
         </Routes>

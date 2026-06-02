@@ -345,6 +345,12 @@ function Footer() {
               <Link as={RouterLink} to="/cart" color="whiteAlpha.700" _hover={{ color: "white" }}>
                 Cart
               </Link>
+              <Link as={RouterLink} to="/support" color="whiteAlpha.700" _hover={{ color: "white" }}>
+                Support
+              </Link>
+              <Link as={RouterLink} to="/privacy" color="whiteAlpha.700" _hover={{ color: "white" }}>
+                Privacy
+              </Link>
             </VStack>
           </Box>
 

@@ -136,7 +136,10 @@ export default function Cart() {
       } else {
         setError("No checkout URL received. Please try again.");
       }
-    } catch {
+    } catch (error: any) {
+      console.log("Checkout status:", error?.response?.status);
+      console.log("Checkout response:", error?.response?.data);
+      console.log("Checkout error:", error);
       setError("Failed to initiate checkout. Please try again.");
     } finally {
       setSubmitting(false);
@@ -544,6 +547,7 @@ export default function Cart() {
                   isLoading={submitting}
                   loadingText="Redirecting…"
                   onClick={handleCheckout}
+                  isDisabled={submitting}
                 >
                   Proceed to Checkout
                 </Button>
